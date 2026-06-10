@@ -495,6 +495,59 @@ nav{
   .pkg-content-side{padding:48px 24px}
 }
 
+/* ═══ LIGHTBOX ═══ */
+.lightbox-overlay {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.93);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lightbox-overlay.open {
+  display: flex;
+  opacity: 1;
+}
+.lightbox-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.8);
+  border: 1px solid rgba(255,255,255,0.12);
+  transform: scale(0.96);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lightbox-overlay.open img {
+  transform: scale(1);
+}
+.lightbox-close {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  color: #fff;
+  font-size: 44px;
+  font-weight: 200;
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.lightbox-close:hover {
+  color: var(--gold);
+  transform: scale(1.1) rotate(90deg);
+}
+
+
 /* ═══ PRICING ═══ */
 .pricing-table{
   margin-top:56px;border:1px solid var(--border);border-radius:10px;overflow:hidden;
@@ -794,27 +847,33 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 <div class="pkg-section">
   <div class="pkg-grid">
     <div class="pkg-img-side">
-      <img src="package.jpg" alt="Хасбанк Custom Package">
+      <img src="package.png" alt="Хасбанк Custom Package">
       <div class="pkg-img-overlay"></div>
       <div class="pkg-img-badge">PREMIUM</div>
     </div>
     <div class="pkg-content-side">
       <div class="pkg-chip"><div class="pkg-chip-dot"></div><span contenteditable="true">Брэндинг Багц</span></div>
       <h2 class="pkg-h2" contenteditable="true">Өөрийн <span class="g">брэнд загвар,</span><br>логотойгоор хийлгэх</h2>
-      <p class="pkg-desc" contenteditable="true">Та бүхэн өөрийн хүссэн загвар, лого болон бэлгэдэл үгс зэргийг тусган, өөрийн байгууллагын онцлогт тохирсон премиум багцыг захиалгаар бэлдүүлэх боломжтой. Бид танд зориулж хамгийн дээд зэрэглэлийн материал, дизайнтай бэлэглэлийн хайрцгийг хурдан хугацаанд гүйцэтгэж өгнө.</p>
+      <p class="pkg-desc" contenteditable="true">Та бүхэн өөрийн хүссэн загвар, logo болон бэлгэдэл үгс зэргийг тусган, өөрийн байгууллагын онцлогт тохирсон премиум багцыг захиалгаар бэлдүүлэх боломжтой. Бид танд зориулж хамгийн дээд зэрэглэлийн материал, дизайнтай бэлэглэлийн хайрцгийг хурдан хугацаанд гүйцэтгэж өгнө.</p>
       <div class="pkg-features">
         <div class="pkg-feat"><div class="pkg-feat-icon">🎨</div><span contenteditable="true">Брэндийн лого, хүссэн өнгө, загварын сонголт</span></div>
         <div class="pkg-feat"><div class="pkg-feat-icon">✨</div><span contenteditable="true">Алтан болон мөнгөн фоль хэвлэлтийн шийдэл</span></div>
         <div class="pkg-feat"><div class="pkg-feat-icon">🎁</div><span contenteditable="true">Байгууллагын ажилтан болон VIP харилцагчийн багц</span></div>
         <div class="pkg-feat"><div class="pkg-feat-icon">⚡</div><span contenteditable="true">Загвар дизайн гаргах, зөвлөх үйлчилгээ үнэгүй</span></div>
       </div>
-      <a class="pkg-cta" href="#contact-section">
+      <button type="button" class="pkg-cta" onclick="openPkgLightbox(event)">
         Хайрцагны загвар үзэх
         <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
-      </a>
+      </button>
       <div class="pkg-note" contenteditable="true">* Хамгийн бага захиалга: 50 ширхэг · Загвар гаргах хугацаа: 2-3 хоног</div>
     </div>
   </div>
+</div>
+
+<!-- LIGHTBOX MODAL FOR CUSTOM PACKAGE -->
+<div id="pkg-lightbox" class="lightbox-overlay" onclick="closePkgLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="pkg-lightbox-img" src="package.png" alt="High Quality Package Design" onclick="event.stopPropagation()">
 </div>
 
 <div class="divider"></div>
@@ -1188,7 +1247,7 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('modal')) closeModal();
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closePkgLightbox(); } });
 
 function renderModalGallery() {
   const p = products[currentModal];
@@ -1319,6 +1378,30 @@ const cIo = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.5 });
 document.querySelectorAll('.stat-box').forEach(b => cIo.observe(b));
+
+// ═══════════════════════════════
+//  LIGHTBOX FOR CUSTOM PACKAGE
+// ═══════════════════════════════
+function openPkgLightbox(e) {
+  if (e) e.preventDefault();
+  const lightbox = document.getElementById('pkg-lightbox');
+  lightbox.style.display = 'flex';
+  setTimeout(() => {
+    lightbox.classList.add('open');
+  }, 10);
+  document.body.style.overflow = 'hidden';
+}
+
+function closePkgLightbox() {
+  const lightbox = document.getElementById('pkg-lightbox');
+  lightbox.classList.remove('open');
+  setTimeout(() => {
+    lightbox.style.display = 'none';
+  }, 300);
+  if (!document.getElementById('modal').classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
+}
 </script>
 </body>
 </html>
