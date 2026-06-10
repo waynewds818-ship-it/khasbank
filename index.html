@@ -1275,75 +1275,7 @@ let nextId = 3;
 let currentModal = null;
 let currentImageIdx = 0;
 
-// Load draft from localStorage if it is newer than the server version
-(function() {
-  const draftTime = localStorage.getItem('khasbank_draft_time');
-  if (draftTime && parseInt(draftTime) > lastSaved) {
-    const draftHtml = localStorage.getItem('khasbank_draft_html');
-    if (draftHtml) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(draftHtml, 'text/html');
-      if (doc && doc.body) {
-        // Restore body content as soon as DOM is parsed
-        document.addEventListener('DOMContentLoaded', () => {
-          document.body.innerHTML = doc.body.innerHTML;
-          
-          // Make sure the floating save button is not stuck in a saving state on load
-          const tempBtn = document.getElementById('floatingSaveBtn');
-          if (tempBtn) {
-            tempBtn.classList.remove('show', 'saving');
-            const txt = document.getElementById('saveBtnText');
-            if (txt) txt.textContent = 'Өөрчлөлтийг хадгалах';
-          }
-
-          // Re-initialize state
-          renderProductCards();
-          
-          // Re-observe elements for animations
-          const io = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (!entry.isIntersecting) return;
-              const el = entry.target;
-              const parent = el.parentElement;
-              const group = [...parent.children].filter(c => c.classList.contains(el.classList[0]));
-              const idx = group.indexOf(el);
-              el.style.transitionDelay = (idx * 0.09) + 's';
-              el.classList.add('in');
-              io.unobserve(el);
-            });
-          }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
-          
-          document.querySelectorAll(
-            '.reveal,.adv-row,.stat-box,.pricing-table,.total-card,.tl-step,.res-card'
-          ).forEach(el => io.observe(el));
-          
-          // Re-observe timeline spine
-          const spineIo = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-              if (e.isIntersecting) { document.getElementById('tlFill').classList.add('in'); }
-            });
-          }, { threshold: 0.3 });
-          const spine = document.getElementById('tlFill');
-          if (spine) spineIo.observe(spine.parentElement);
-        });
-      }
-    }
-    try {
-      const draftProducts = localStorage.getItem('khasbank_draft_products');
-      const draftNextId = localStorage.getItem('khasbank_draft_nextid');
-      if (draftProducts) products = JSON.parse(draftProducts);
-      if (draftNextId) nextId = parseInt(draftNextId);
-    } catch(e) {
-      console.error("Error loading variables from draft", e);
-    }
-  } else {
-    // Clear draft if server matches/exceeds draft
-    localStorage.removeItem('khasbank_draft_html');
-    localStorage.removeItem('khasbank_draft_products');
-    localStorage.removeItem('khasbank_draft_nextid');
-    localStorage.removeItem('khasbank_draft_time');
-  }
-})();
+// LocalStorage draft check will be handled in loadLatestData on page load
 
 // ═══════════════════════════════
 //  TOAST
@@ -1460,19 +1392,48 @@ function deleteProduct(idx) {
 // ═══════════════════════════════
 //  CARD IMAGE UPLOAD
 // ═══════════════════════════════
+function compressAndUploadImage(file, callback) {
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const maxDim = 1000;
+      let w = img.width;
+      let h = img.height;
+      if (w > h) {
+        if (w > maxDim) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        }
+      } else {
+        if (h > maxDim) {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.75);
+      callback(compressed);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function handleUpload(e, idx) {
   const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const src = ev.target.result;
+  compressAndUploadImage(file, (src) => {
     if (!products[idx].images.length) products[idx].images.push(src);
     else products[idx].images[0] = src;
     renderProductCards();
     showToast('📷 Зураг нэмэгдлээ');
     markChanged();
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 // ═══════════════════════════════
@@ -1576,21 +1537,20 @@ function handleModalImageUpload(e) {
   const files = e.target.files;
   if (!files.length || currentModal === null) return;
 
+  let loadedCount = 0;
   Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const src = ev.target.result;
+    compressAndUploadImage(file, (src) => {
       products[currentModal].images.push(src);
-      currentImageIdx = products[currentModal].images.length - 1;
-      renderModalGallery();
-      // Update card thumbnail
-      renderProductCards();
-      markChanged();
-    };
-    reader.readAsDataURL(file);
+      loadedCount++;
+      if (loadedCount === files.length) {
+        currentImageIdx = products[currentModal].images.length - 1;
+        renderModalGallery();
+        renderProductCards();
+        markChanged();
+        showToast(`📷 ${files.length} зураг нэмэгдлээ`);
+      }
+    });
   });
-
-  showToast(`📷 ${files.length} зураг нэмэгдлээ`);
   e.target.value = '';
 }
 
@@ -1609,37 +1569,122 @@ document.querySelectorAll('[contenteditable="true"]').forEach((el, index) => {
 
 let loadedEdits = {};
 
-async function loadDataFromBlob() {
+async function loadLatestData() {
+  const staticTime = lastSaved || 0;
+  const draftTime = parseInt(localStorage.getItem('khasbank_draft_time') || '0', 10);
+  
+  let dbData = null;
+  let dbTime = 0;
+  
   try {
     const res = await fetch('https://api.npoint.io/d68310e7c00cc566722a');
-    if (!res.ok) throw new Error('Blob fetch failed');
-    const data = await res.json();
-    
-    if (data) {
-      if (data.products) {
-        products = data.products;
+    if (res.ok) {
+      dbData = await res.json();
+      if (dbData && dbData.timestamp) {
+        dbTime = dbData.timestamp;
       }
-      if (data.nextId) {
-        nextId = data.nextId;
-      }
-      if (data.edits) {
-        loadedEdits = data.edits;
-        for (const [id, html] of Object.entries(data.edits)) {
-          const el = document.getElementById(id);
-          if (el) {
-            el.innerHTML = html;
-            el._originalHTML = html; // Set baseline to the loaded database state
-          }
-        }
-      }
-      // Re-render products to display updated data
-      renderProductCards();
     }
   } catch (e) {
-    console.warn("Could not load database state from JSON blob. Using local HTML static values.", e);
+    console.warn("Could not fetch database state:", e);
   }
+
+  // Determine the newest source
+  const maxTime = Math.max(staticTime, draftTime, dbTime);
+
+  if (maxTime === dbTime && dbData) {
+    console.log("Loading latest state from Cloud Database (timestamp:", dbTime, ")");
+    if (dbData.products) products = dbData.products;
+    if (dbData.nextId) nextId = dbData.nextId;
+    if (dbData.edits) {
+      loadedEdits = dbData.edits;
+      for (const [id, html] of Object.entries(dbData.edits)) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.innerHTML = html;
+          el._originalHTML = html; // update baseline
+        }
+      }
+    }
+    renderProductCards();
+    // Clear old localStorage if db is newer
+    if (dbTime > draftTime) {
+      localStorage.removeItem('khasbank_draft_html');
+      localStorage.removeItem('khasbank_draft_products');
+      localStorage.removeItem('khasbank_draft_nextid');
+      localStorage.removeItem('khasbank_draft_time');
+    }
+  } else if (maxTime === draftTime) {
+    console.log("Loading latest state from LocalStorage (timestamp:", draftTime, ")");
+    const draftHtml = localStorage.getItem('khasbank_draft_html');
+    if (draftHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(draftHtml, 'text/html');
+      if (doc && doc.body) {
+        document.body.innerHTML = doc.body.innerHTML;
+        // Make sure the floating save button is not stuck in a saving state
+        const tempBtn = document.getElementById('floatingSaveBtn');
+        if (tempBtn) {
+          tempBtn.classList.remove('show', 'saving');
+          const txt = document.getElementById('saveBtnText');
+          if (txt) txt.textContent = 'Өөрчлөлтийг хадгалах';
+        }
+        
+        // Re-observe elements for animations since DOM was replaced
+        setTimeout(() => {
+          const animIo = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (!entry.isIntersecting) return;
+              const el = entry.target;
+              const parent = el.parentElement;
+              const group = [...parent.children].filter(c => c.classList.contains(el.classList[0]));
+              const idx = group.indexOf(el);
+              el.style.transitionDelay = (idx * 0.09) + 's';
+              el.classList.add('in');
+              animIo.unobserve(el);
+            });
+          }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+          
+          document.querySelectorAll(
+            '.reveal,.adv-row,.stat-box,.pricing-table,.total-card,.tl-step,.res-card'
+          ).forEach(el => animIo.observe(el));
+          
+          const spineIo = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+              if (e.isIntersecting) { document.getElementById('tlFill').classList.add('in'); }
+            });
+          }, { threshold: 0.3 });
+          const spine = document.getElementById('tlFill');
+          if (spine) spineIo.observe(spine.parentElement);
+        }, 100);
+      }
+    }
+    try {
+      const draftProducts = localStorage.getItem('khasbank_draft_products');
+      const draftNextId = localStorage.getItem('khasbank_draft_nextid');
+      if (draftProducts) products = JSON.parse(draftProducts);
+      if (draftNextId) nextId = parseInt(draftNextId);
+    } catch(e) {
+      console.error("Error loading variables from draft", e);
+    }
+    renderProductCards();
+  } else {
+    console.log("Using static HTML content (timestamp:", staticTime, ")");
+    renderProductCards();
+  }
+
+  // Ensure contenteditable baseline is correctly updated for whatever is loaded
+  document.querySelectorAll('[contenteditable="true"]').forEach((el, index) => {
+    if (!el.id) {
+      el.id = 'auto-edit-' + index;
+    }
+    el._originalHTML = el.innerHTML;
+  });
 }
-loadDataFromBlob();
+
+// Run load on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  loadLatestData();
+});
 
 // ═══════════════════════════════
 //  SCROLL REVEAL + ANIMATIONS
@@ -1757,29 +1802,45 @@ async function saveChangesToServer() {
   btn.classList.add('saving');
   btnText.textContent = 'Хадгалж байна...';
 
+  // Close modals for a clean save state
+  closeModal();
+  closePkgLightbox();
+
+  await new Promise(resolve => setTimeout(resolve, 200));
+
+  // Build optimized edits dictionary by merging loaded edits and current changes
+  const edits = { ...loadedEdits };
+  document.querySelectorAll('[contenteditable="true"]').forEach((el) => {
+    if (el.innerHTML !== el._originalHTML) {
+      edits[el.id] = el.innerHTML;
+    }
+  });
+
+  const payload = {
+    products: products,
+    nextId: nextId,
+    edits: edits,
+    timestamp: Date.now()
+  };
+
+  const now = Date.now();
+  lastSaved = now;
+
+  // 1. Update localStorage backup immediately
   try {
-    // Close modals for a clean save state
-    closeModal();
-    closePkgLightbox();
+    localStorage.setItem('khasbank_draft_products', JSON.stringify(products));
+    localStorage.setItem('khasbank_draft_nextid', nextId);
+    localStorage.setItem('khasbank_draft_time', now.toString());
+  } catch (lsErr) {
+    console.warn("Could not save products to localStorage", lsErr);
+  }
 
-    await new Promise(resolve => setTimeout(resolve, 200));
+  let cloudSaved = false;
+  let localSaved = false;
+  let cloudErrorMsg = "";
 
-    // Build optimized edits dictionary by merging loaded edits and current changes
-    const edits = { ...loadedEdits };
-    document.querySelectorAll('[contenteditable="true"]').forEach((el) => {
-      if (el.innerHTML !== el._originalHTML) {
-        edits[el.id] = el.innerHTML;
-      }
-    });
-
-    const payload = {
-      products: products,
-      nextId: nextId,
-      edits: edits,
-      timestamp: Date.now()
-    };
-
-    // 1. Save to cloud database (npoint.io) - works instantly for everyone globally!
+  // 2. Save to cloud database (npoint.io)
+  try {
     const blobResponse = await fetch('https://api.npoint.io/d68310e7c00cc566722a', {
       method: 'POST',
       headers: {
@@ -1788,74 +1849,81 @@ async function saveChangesToServer() {
       body: JSON.stringify(payload)
     });
 
-    if (!blobResponse.ok) {
-      throw new Error('Failed to update cloud JSON blob database');
+    if (blobResponse.ok) {
+      cloudSaved = true;
+    } else {
+      cloudErrorMsg = "Status: " + blobResponse.status;
+    }
+  } catch (cloudErr) {
+    console.error("Cloud save failed:", cloudErr);
+    cloudErrorMsg = cloudErr.message;
+  }
+
+  // 3. Try local Python helper save in the background
+  try {
+    // Temporarily strip the button state so it is saved as clean, hidden by default
+    const tempBtn = document.getElementById('floatingSaveBtn');
+    let wasShow = false;
+    let wasSaving = false;
+    if (tempBtn) {
+      wasShow = tempBtn.classList.contains('show');
+      wasSaving = tempBtn.classList.contains('saving');
+      tempBtn.classList.remove('show', 'saving');
     }
 
-    // 2. Try local Python helper save in the background (if running on owner's machine)
-    try {
-      const now = Date.now();
-      lastSaved = now;
+    // Get current HTML
+    let html = '<!DOCTYPE html>\n<html lang="mn">\n' + document.documentElement.outerHTML + '\n</html>';
 
-      // Temporarily strip the button state so it is saved as clean, hidden by default
-      const tempBtn = document.getElementById('floatingSaveBtn');
-      let wasShow = false;
-      let wasSaving = false;
-      if (tempBtn) {
-        wasShow = tempBtn.classList.contains('show');
-        wasSaving = tempBtn.classList.contains('saving');
-        tempBtn.classList.remove('show', 'saving');
-      }
-
-      // Get current HTML
-      let html = '<!DOCTYPE html>\n<html lang="mn">\n' + document.documentElement.outerHTML + '\n</html>';
-
-      // Restore the button state in the active browser view
-      if (tempBtn) {
-        if (wasShow) tempBtn.classList.add('show');
-        if (wasSaving) tempBtn.classList.add('saving');
-      }
-
-      // Update static variables in file code
-      const productsRegex = /\/\*START_PRODUCTS\*\/[\s\S]*?\/\*END_PRODUCTS\*\//;
-      html = html.replace(productsRegex, '/*START_PRODUCTS*/\nlet products = ' + JSON.stringify(products, null, 2) + ';\n/*END_PRODUCTS*/');
-
-      const nextIdRegex = /\/\*START_NEXTID\*\/[\s\S]*?\/\*END_NEXTID\*\//;
-      html = html.replace(nextIdRegex, '/*START_NEXTID*/\nlet nextId = ' + nextId + ';\n/*END_NEXTID*/');
-
-      const savedTimeRegex = /\/\*START_SAVED_TIME\*\/[\s\S]*?\/\*END_SAVED_TIME\*\//;
-      html = html.replace(savedTimeRegex, '/*START_SAVED_TIME*/\nlet lastSaved = ' + now + ';\n/*END_SAVED_TIME*/');
-
-      // Update localStorage backup
-      localStorage.setItem('khasbank_draft_html', html);
-      localStorage.setItem('khasbank_draft_products', JSON.stringify(products));
-      localStorage.setItem('khasbank_draft_nextid', nextId);
-      localStorage.setItem('khasbank_draft_time', now.toString());
-
-      // POST to local helper server to update local files and push to GitHub
-      await fetch('http://localhost:8765/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ html: html })
-      });
-    } catch (localErr) {
-      console.warn("Local helper server not active, skipped file & git sync. Saved to Cloud Database successfully.", localErr);
+    // Restore the button state in the active browser view
+    if (tempBtn) {
+      if (wasShow) tempBtn.classList.add('show');
+      if (wasSaving) tempBtn.classList.add('saving');
     }
 
-    // Success notification
-    showToast('✅ Хадгалагдаж, Pages рүү илгээгдлээ!');
+    // Update static variables in file code
+    const productsRegex = /\/\*START_PRODUCTS\*\/[\s\S]*?\/\*END_PRODUCTS\*\//;
+    html = html.replace(productsRegex, '/*START_PRODUCTS*/\nlet products = ' + JSON.stringify(products, null, 2) + ';\n/*END_PRODUCTS*/');
+
+    const nextIdRegex = /\/\*START_NEXTID\*\/[\s\S]*?\/\*END_NEXTID\*\//;
+    html = html.replace(nextIdRegex, '/*START_NEXTID*/\nlet nextId = ' + nextId + ';\n/*END_NEXTID*/');
+
+    const savedTimeRegex = /\/\*START_SAVED_TIME\*\/[\s\S]*?\/\*END_SAVED_TIME\*\//;
+    html = html.replace(savedTimeRegex, '/*START_SAVED_TIME*/\nlet lastSaved = ' + now + ';\n/*END_SAVED_TIME*/');
+
+    // Update localStorage HTML backup
+    localStorage.setItem('khasbank_draft_html', html);
+
+    // POST to local helper server
+    const localResponse = await fetch('http://localhost:8765/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ html: html })
+    });
+    if (localResponse.ok) {
+      localSaved = true;
+    }
+  } catch (localErr) {
+    // Expected on visitor devices, ignore
+  }
+
+  // Handle outcome
+  btn.classList.remove('saving');
+  btnText.textContent = 'Өөрчлөлтийг хадгалах';
+
+  if (cloudSaved) {
+    showToast('✅ Өөрчлөлтийг амжилттай хадгаллаа!');
     hasChanges = false;
     btn.classList.remove('show');
-
-  } catch (error) {
-    console.error(error);
-    alert('Хадгалахад алдаа гарлаа: ' + error.message);
-  } finally {
-    btn.classList.remove('saving');
-    btnText.textContent = 'Өөрчлөлтийг хадгалах';
+  } else if (localSaved) {
+    showToast('✅ Локал файлыг амжилттай хадгаллаа!');
+    hasChanges = false;
+    btn.classList.remove('show');
+  } else {
+    alert('Хадгалахад алдаа гарлаа. Таны сүлжээ эсвэл сервер холболтыг шалгана уу.\nДэлгэрэнгүй: ' + (cloudErrorMsg || 'Сүлжээний алдаа'));
   }
+}
 }
 </script>
 
