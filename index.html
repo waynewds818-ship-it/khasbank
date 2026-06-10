@@ -547,6 +547,63 @@ nav{
   transform: scale(1.1) rotate(90deg);
 }
 
+/* ═══ FLOATING SAVE BUTTON ═══ */
+.floating-save-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 999;
+  background: linear-gradient(135deg, #000, #111);
+  color: var(--gold);
+  border: 1px solid var(--border-g);
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,55,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(100px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, background 0.2s, box-shadow 0.2s;
+}
+.floating-save-btn.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.floating-save-btn:hover {
+  background: linear-gradient(135deg, #111, #1a1a1a);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.6), 0 0 25px rgba(212,175,55,0.25);
+  color: var(--gold2);
+}
+.floating-save-btn:active {
+  transform: scale(0.97);
+}
+.save-btn-spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(212,175,55,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: save-spin 0.8s linear infinite;
+}
+@keyframes save-spin {
+  to { transform: rotate(360deg); }
+}
+.floating-save-btn.saving .save-btn-spinner {
+  display: inline-block;
+}
+.floating-save-btn.saving .save-btn-icon {
+  display: none;
+}
+
 
 /* ═══ PRICING ═══ */
 .pricing-table{
@@ -999,10 +1056,18 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 
 <footer contenteditable="true">© 2026 SKLAD Logistics · Best Brickets LLC · Хасбанканд зориулсан нууц арилжааны санал</footer>
 
+<!-- FLOATING SAVE BUTTON -->
+<button id="floatingSaveBtn" class="floating-save-btn" onclick="saveChangesToServer()">
+  <span class="save-btn-icon">💾</span>
+  <div class="save-btn-spinner"></div>
+  <span id="saveBtnText">Өөрчлөлтийг хадгалах</span>
+</button>
+
 <script>
 // ═══════════════════════════════
 //  PRODUCT DATA
 // ═══════════════════════════════
+/*START_PRODUCTS*/
 let products = [
   {
     id: 0,
@@ -1068,8 +1133,11 @@ let products = [
     images: []
   }
 ];
+/*END_PRODUCTS*/
 
+/*START_NEXTID*/
 let nextId = 3;
+/*END_NEXTID*/
 let currentModal = null;
 let currentImageIdx = 0;
 
@@ -1152,7 +1220,7 @@ function addNewProduct() {
     category: 'БАРАА',
     icon: '📦',
     tagline: 'Барааны тайлбар бичих',
-    desc: 'Энд дэлгэрэнгүй тайлбар бичнэ үү.',
+    desc: 'Энд дэлгэрэങ്ങിй тайлбар бичнэ үү.',
     price: '0₮',
     priceLabel: '0₮',
     unit: '/ нэгж',
@@ -1167,6 +1235,7 @@ function addNewProduct() {
   products.push(newProd);
   renderProductCards();
   showToast('✓ Шинэ бараа нэмэгдлээ');
+  markChanged();
 
   // Scroll to the new card
   setTimeout(() => {
@@ -1181,6 +1250,7 @@ function deleteProduct(idx) {
   products.splice(idx, 1);
   renderProductCards();
   showToast('Бараа устгагдлаа');
+  markChanged();
 }
 
 // ═══════════════════════════════
@@ -1196,6 +1266,7 @@ function handleUpload(e, idx) {
     else products[idx].images[0] = src;
     renderProductCards();
     showToast('📷 Зураг нэмэгдлээ');
+    markChanged();
   };
   reader.readAsDataURL(file);
 }
@@ -1290,6 +1361,7 @@ function deleteModalImage(imgIdx) {
   }
   renderModalGallery();
   showToast('Зураг устгагдлаа');
+  markChanged();
 }
 
 function triggerModalUpload() {
@@ -1309,6 +1381,7 @@ function handleModalImageUpload(e) {
       renderModalGallery();
       // Update card thumbnail
       renderProductCards();
+      markChanged();
     };
     reader.readAsDataURL(file);
   });
@@ -1379,19 +1452,6 @@ const cIo = new IntersectionObserver(entries => {
 }, { threshold: 0.5 });
 document.querySelectorAll('.stat-box').forEach(b => cIo.observe(b));
 
-// ═══════════════════════════════
-//  LIGHTBOX FOR CUSTOM PACKAGE
-// ═══════════════════════════════
-function openPkgLightbox(e) {
-  if (e) e.preventDefault();
-  const lightbox = document.getElementById('pkg-lightbox');
-  lightbox.style.display = 'flex';
-  setTimeout(() => {
-    lightbox.classList.add('open');
-  }, 10);
-  document.body.style.overflow = 'hidden';
-}
-
 function closePkgLightbox() {
   const lightbox = document.getElementById('pkg-lightbox');
   lightbox.classList.remove('open');
@@ -1400,6 +1460,88 @@ function closePkgLightbox() {
   }, 300);
   if (!document.getElementById('modal').classList.contains('open')) {
     document.body.style.overflow = '';
+  }
+}
+
+// ═══════════════════════════════
+//  CHANGE TRACKING & AUTO-SAVE
+// ═══════════════════════════════
+let hasChanges = false;
+
+function markChanged() {
+  if (hasChanges) return;
+  hasChanges = true;
+  const btn = document.getElementById('floatingSaveBtn');
+  if (btn) btn.classList.add('show');
+}
+
+// Listen for contenteditable text changes
+document.addEventListener('input', e => {
+  if (e.target.hasAttribute('contenteditable') || e.target.closest('[contenteditable="true"]')) {
+    markChanged();
+  }
+});
+
+// Capture changes in products modal on close
+const originalCloseModal = closeModal;
+closeModal = function() {
+  const prevStr = JSON.stringify(products);
+  originalCloseModal();
+  const nextStr = JSON.stringify(products);
+  if (prevStr !== nextStr) {
+    markChanged();
+  }
+};
+
+async function saveChangesToServer() {
+  const btn = document.getElementById('floatingSaveBtn');
+  const btnText = document.getElementById('saveBtnText');
+  if (!btn || btn.classList.contains('saving')) return;
+
+  btn.classList.add('saving');
+  btnText.textContent = 'Хадгалж байна...';
+
+  try {
+    // Close modals for a clean save
+    closeModal();
+    closePkgLightbox();
+
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // Get current HTML
+    let html = '<!DOCTYPE html>\n<html lang="mn">\n' + document.documentElement.outerHTML + '\n</html>';
+
+    // Replace products array using regex markers
+    const productsRegex = /\/\*START_PRODUCTS\*\/[\s\S]*?\/\*END_PRODUCTS\*\//;
+    html = html.replace(productsRegex, '/*START_PRODUCTS*/\nlet products = ' + JSON.stringify(products, null, 2) + ';\n/*END_PRODUCTS*/');
+
+    // Replace nextId using regex markers
+    const nextIdRegex = /\/\*START_NEXTID\*\/[\s\S]*?\/\*END_NEXTID\*\//;
+    html = html.replace(nextIdRegex, '/*START_NEXTID*/\nlet nextId = ' + nextId + ';\n/*END_NEXTID*/');
+
+    // POST request to helper server
+    const response = await fetch('http://localhost:8765/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ html: html })
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      showToast('✅ Хадгалагдаж, Pages рүү илгээгдлээ!');
+      hasChanges = false;
+      btn.classList.remove('show');
+    } else {
+      throw new Error(result.error || 'Server error');
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Хадгалахад алдаа гарлаа: ' + error.message + '\n\nТаны компьютер дээр арын сервер ажиллаж байгаа эсэхийг шалгана уу.');
+  } finally {
+    btn.classList.remove('saving');
+    btnText.textContent = 'Өөрчлөлтийг хадгалах';
   }
 }
 </script>
