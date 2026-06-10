@@ -764,6 +764,161 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
   .nav .nav-date{display:none}
   .c-phones{flex-direction:column}
 }
+
+/* ═══ VIP SHOWCASE SECTION ═══ */
+.vip-showcase {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.vip-showcase-hero {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-g);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(212,175,55,0.08);
+  height: 600px;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
+}
+
+.vip-showcase-hero:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 35px 70px rgba(0,0,0,0.9), 0 0 50px rgba(212,175,55,0.15);
+}
+
+.vip-showcase-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vip-showcase-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--bg) 0%, rgba(10,10,10,0.4) 60%, transparent 100%);
+  pointer-events: none;
+}
+
+.vip-showcase-badge {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 10;
+  background: linear-gradient(135deg, var(--gold2), var(--gold));
+  color: #000;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+}
+
+.vip-showcase-details {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.vip-details-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vip-details-left h3 {
+  font-size: clamp(20px, 2.5vw, 32px);
+  font-weight: 800;
+  color: #fff;
+}
+
+.vip-details-left h3 span.g {
+  color: transparent;
+  background: linear-gradient(135deg, var(--gold3), var(--gold) 40%, var(--gold2) 60%, var(--gold) 80%, var(--gold3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+}
+
+.vip-details-desc {
+  font-size: 16px;
+  color: var(--gray2);
+  line-height: 1.8;
+}
+
+.vip-details-desc p {
+  margin-bottom: 16px;
+}
+
+.vip-details-right {
+  background: rgba(212,175,55,0.02);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  position: sticky;
+  top: 100px;
+}
+
+.vip-specs-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-g);
+}
+
+.vip-specs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vip-spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+  font-size: 14px;
+}
+
+.vip-spec-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.vip-spec-k {
+  color: var(--gray3);
+  font-weight: 500;
+}
+
+.vip-spec-v {
+  color: #fff;
+  font-weight: 600;
+  text-align: right;
+}
+
+@media(max-width: 960px) {
+  .vip-showcase-hero {
+    height: 400px;
+  }
+  .vip-showcase-details {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .vip-details-right {
+    position: static;
+  }
+}
 </style>
 </head>
 <body>
@@ -1013,38 +1168,57 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 
 <!-- PRICING -->
 <section class="sec" id="pricing">
-  <div class="sec-lbl reveal"><span contenteditable="true" id="auto-edit-51">Үнийн санал</span></div>
-  <h2 class="sec-h2 reveal" contenteditable="true" id="auto-edit-52">Ил тод, <span class="g">өрсөлдөхүйц</span> үнэ</h2>
-  <p class="sec-p reveal" contenteditable="true" id="auto-edit-53">Хасбанкны хэрэгцээнд нийцүүлэн боловсруулсан үнийн дэлгэрэнгүй санал.</p>
-  <div class="pricing-table">
-    <div class="pt-head">
-      <span>Бараа</span><span>Тоо хэмжээ</span><span>Нэгж үнэ</span><span style="text-align:right">Нийт дүн</span>
+  <div class="sec-lbl reveal"><span contenteditable="true" id="vip-section-lbl">ОНЦЛОХ САНАЛ</span></div>
+  <h2 class="sec-h2 reveal" contenteditable="true" id="vip-section-title">Хас Банканд зориулсан <span class="g">Брэндинг VIP</span> Багц</h2>
+  <p class="sec-p reveal" contenteditable="true" id="vip-section-subtitle">Харилцагчдад зориулсан дээд зэрэглэлийн сувенир, бэлэг дурсгалын онцгой шийдэл.</p>
+  
+  <div class="vip-showcase reveal">
+    <div class="vip-showcase-hero">
+      <img src="package-vip.png" alt="Хасбанк VIP Багц">
+      <div class="vip-showcase-overlay"></div>
+      <div class="vip-showcase-badge" contenteditable="true" id="vip-badge-text">PREMIUM VIP</div>
     </div>
-    <div class="pt-row">
-      <div class="pt-name" contenteditable="true" id="auto-edit-54">📄 А4 цаас</div>
-      <div class="pt-qty" contenteditable="true" id="auto-edit-55">500 боодол</div>
-      <div class="pt-unit" contenteditable="true" id="auto-edit-56">18,000₮</div>
-      <div class="pt-total" contenteditable="true" id="auto-edit-57">9,000,000₮</div>
+    
+    <div class="vip-showcase-details">
+      <div class="vip-details-left">
+        <h3 contenteditable="true" id="vip-details-title">Хасбанкны онцлогт тохирсон <span class="g">Бэлэглэлийн Багц</span></h3>
+        <div class="vip-details-desc">
+          <p contenteditable="true" id="vip-desc-p1">Байгууллагын брэнд шинэчлэл болон VIP харилцагчийн харилцааг бэхжүүлэхэд зориулсан премиум зэрэглэлийн бэлэг дурсгалын иж бүрдэл. Энэхүү багц нь Хасбанкны брэнд өнгө төрхийг бүрэн илэрхийлсэн дээд зэргийн хатуу цаасан хайрцаг, загварлаг SUV загварын автомашины модел болон металл хэвлэлт бүхий дурсгалын пайзнаас бүрдэнэ.</p>
+          <p contenteditable="true" id="vip-desc-p2">Хайрцагны дотор талыг хамгийн тансаг хилэн даавуугаар бүрж, модел болон пайзыг тусгай зориулалтын хэвэнд найдвартай байршуулсан. Хайрцагны гадна талд алтлаг фоль болон рельеф хэвлэлт ашиглан Хасбанкны лого, уул нурууны зураглалыг уусгаж өгсөн нь маш тансаг, премиум мэдрэмжийг төрүүлнэ.</p>
+          <p contenteditable="true" id="vip-desc-p3">Бид захиалагчийн хүсэл сонирхолд нийцүүлэн автомашины загвар, металл пайзны бичиглэл болон хайрцагны дизайныг өөрчлөх, нэмэлт бэлэг (үзэг, тэмдэглэлийн дэвтэр, нэрийн хуудасны гэр г.м) багтаах бүрэн боломжтой.</p>
+        </div>
+      </div>
+      
+      <div class="vip-details-right">
+        <div class="vip-specs-title" contenteditable="true" id="vip-specs-header">БҮТЭЭГДЭХҮҮНИЙ ҮЗҮҮЛЭЛТ</div>
+        <div class="vip-specs-list">
+          <div class="vip-spec-item">
+            <span class="vip-spec-k" contenteditable="true" id="vip-spec-k-1">Хайрцагны хэмжээ:</span>
+            <span class="vip-spec-v" contenteditable="true" id="vip-spec-v-1">45 x 30 x 15 см</span>
+          </div>
+          <div class="vip-spec-item">
+            <span class="vip-spec-k" contenteditable="true" id="vip-spec-k-2">Модел автомашин:</span>
+            <span class="vip-spec-v" contenteditable="true" id="vip-spec-v-2">Toyota Land Cruiser / Lexus LX, Шилэн хорготой</span>
+          </div>
+          <div class="vip-spec-item">
+            <span class="vip-spec-k" contenteditable="true" id="vip-spec-k-3">Дурсгалын пайз:</span>
+            <span class="vip-spec-v" contenteditable="true" id="vip-spec-v-3">Хүрэл өнгөтэй металл, сийлбэртэй</span>
+          </div>
+          <div class="vip-spec-item">
+            <span class="vip-spec-k" contenteditable="true" id="vip-spec-k-4">Хайрцагны материал:</span>
+            <span class="vip-spec-v" contenteditable="true" id="vip-spec-v-4">Премиум хатуу картон, Дотор тал нь хилэн</span>
+          </div>
+          <div class="vip-spec-item">
+            <span class="vip-spec-k" contenteditable="true" id="vip-spec-k-5">Хэвлэлтийн технологи:</span>
+            <span class="vip-spec-v" contenteditable="true" id="vip-spec-v-5">Алтлаг фоль хэвлэлт, Лазер сийлбэр</span>
+          </div>
+          <div class="vip-spec-item">
+            <span class="vip-spec-k" contenteditable="true" id="vip-spec-k-6">Багц үйлдвэрлэх хугацаа:</span>
+            <span class="vip-spec-v" contenteditable="true" id="vip-spec-v-6">Захиалга баталгаажсанаас хойш 14 хоног</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="pt-row">
-      <div class="pt-name" contenteditable="true" id="auto-edit-58">✒️ Үзэг</div>
-      <div class="pt-qty" contenteditable="true" id="auto-edit-59">2,000 ширхэг</div>
-      <div class="pt-unit" contenteditable="true" id="auto-edit-60">1,200₮</div>
-      <div class="pt-total" contenteditable="true" id="auto-edit-61">2,400,000₮</div>
-    </div>
-    <div class="pt-row">
-      <div class="pt-name" contenteditable="true" id="auto-edit-62">📁 Хавтас</div>
-      <div class="pt-qty" contenteditable="true" id="auto-edit-63">500 ширхэг</div>
-      <div class="pt-unit" contenteditable="true" id="auto-edit-64">4,500₮</div>
-      <div class="pt-total" contenteditable="true" id="auto-edit-65">2,250,000₮</div>
-    </div>
-  </div>
-  <div class="total-card">
-    <div>
-      <div class="tc-lbl" contenteditable="true" id="auto-edit-66">Нийт төсөвт зардал</div>
-      <div class="tc-note" contenteditable="true" id="auto-edit-67">НӨАТ орсон / Sample багцын үнэ</div>
-    </div>
-    <div class="tc-amount" contenteditable="true" id="auto-edit-68">15,800,000₮</div>
   </div>
 </section>
 
