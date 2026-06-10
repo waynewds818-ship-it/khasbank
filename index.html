@@ -397,6 +397,104 @@ nav{
   padding:10px;border:1px dashed var(--border);border-radius:6px;
 }
 
+/* ═══ CUSTOM PACKAGE ═══ */
+.pkg-section{
+  background:var(--bg);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  overflow:hidden;position:relative;
+}
+.pkg-section::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.pkg-section::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 30%,rgba(212,175,55,0.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+.pkg-grid{
+  display:grid;grid-template-columns:1.1fr 1fr;gap:0;min-height:600px;
+}
+.pkg-img-side{
+  position:relative;overflow:hidden;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+}
+.pkg-img-side img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .6s ease;
+}
+.pkg-section:hover .pkg-img-side img{transform:scale(1.03)}
+.pkg-img-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 60%,var(--bg) 100%);
+  pointer-events:none;
+}
+.pkg-img-badge{
+  position:absolute;top:24px;left:24px;z-index:5;
+  background:var(--gold);color:#000;
+  font-size:9px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;
+  padding:6px 14px;border-radius:3px;
+}
+.pkg-content-side{
+  padding:72px 56px;display:flex;flex-direction:column;justify-content:center;
+  position:relative;z-index:2;
+}
+.pkg-chip{
+  display:inline-flex;align-items:center;gap:8px;width:fit-content;
+  background:var(--gold-dim);border:1px solid var(--border-g);
+  color:var(--gold);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+  padding:6px 16px;border-radius:3px;margin-bottom:24px;
+}
+.pkg-chip-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 1.8s ease-in-out infinite}
+.pkg-h2{
+  font-size:clamp(26px,3.2vw,42px);font-weight:900;line-height:1.1;
+  letter-spacing:-0.025em;margin-bottom:16px;
+}
+.pkg-h2 .g{
+  color:transparent;
+  background:linear-gradient(135deg,var(--gold3),var(--gold) 40%,var(--gold2) 60%,var(--gold) 80%,var(--gold3));
+  -webkit-background-clip:text;background-clip:text;
+  background-size:200% 100%;animation:shimmer 4s linear infinite;
+}
+.pkg-desc{
+  font-size:15px;color:var(--gray2);line-height:1.75;margin-bottom:32px;max-width:460px;
+}
+.pkg-features{
+  display:flex;flex-direction:column;gap:12px;margin-bottom:36px;
+}
+.pkg-feat{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;border-radius:8px;
+  background:rgba(212,175,55,0.03);border:1px solid var(--border);
+  transition:border-color .25s,background .25s,transform .25s;
+  font-size:14px;color:var(--gray1);font-weight:500;
+}
+.pkg-feat:hover{border-color:var(--border-g);background:rgba(212,175,55,0.06);transform:translateX(4px)}
+.pkg-feat-icon{
+  width:36px;height:36px;border-radius:8px;flex-shrink:0;
+  background:var(--gold-dim);border:1px solid var(--border-g);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.pkg-cta{
+  display:inline-flex;align-items:center;gap:10px;width:fit-content;
+  background:var(--gold);color:#000;border:none;border-radius:6px;
+  padding:14px 28px;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s,transform .15s;
+  text-decoration:none;
+}
+.pkg-cta:hover{background:var(--gold2);transform:scale(1.03)}
+.pkg-cta svg{width:14px;height:14px;transition:transform .2s}
+.pkg-cta:hover svg{transform:translateX(3px)}
+.pkg-note{
+  margin-top:16px;font-size:11px;color:var(--gray3);font-style:italic;
+}
+@media(max-width:960px){
+  .pkg-grid{grid-template-columns:1fr}
+  .pkg-img-side{height:350px}
+  .pkg-img-overlay{background:linear-gradient(180deg,transparent 50%,var(--bg) 100%)}
+  .pkg-content-side{padding:48px 24px}
+}
+
 /* ═══ PRICING ═══ */
 .pricing-table{
   margin-top:56px;border:1px solid var(--border);border-radius:10px;overflow:hidden;
@@ -688,6 +786,35 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
     </div>
   </div>
   <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none" onchange="handleModalImageUpload(event)">
+</div>
+
+<div class="divider"></div>
+
+<!-- CUSTOM PACKAGE -->
+<div class="pkg-section">
+  <div class="pkg-grid">
+    <div class="pkg-img-side">
+      <img src="package.jpg" alt="Хасбанк Custom Package">
+      <div class="pkg-img-overlay"></div>
+      <div class="pkg-img-badge">PREMIUM</div>
+    </div>
+    <div class="pkg-content-side">
+      <div class="pkg-chip"><div class="pkg-chip-dot"></div><span contenteditable="true">Брэндинг Багц</span></div>
+      <h2 class="pkg-h2" contenteditable="true">Өөрийн <span class="g">брэнд загвар,</span><br>логотойгоор хийлгэх</h2>
+      <p class="pkg-desc" contenteditable="true">Та бүхэн өөрийн хүссэн загвар, лого болон бэлгэдэл үгс зэргийг тусган, өөрийн байгууллагын онцлогт тохирсон премиум багцыг захиалгаар бэлдүүлэх боломжтой. Бид танд зориулж хамгийн дээд зэрэглэлийн материал, дизайнтай бэлэглэлийн хайрцгийг хурдан хугацаанд гүйцэтгэж өгнө.</p>
+      <div class="pkg-features">
+        <div class="pkg-feat"><div class="pkg-feat-icon">🎨</div><span contenteditable="true">Брэндийн лого, хүссэн өнгө, загварын сонголт</span></div>
+        <div class="pkg-feat"><div class="pkg-feat-icon">✨</div><span contenteditable="true">Алтан болон мөнгөн фоль хэвлэлтийн шийдэл</span></div>
+        <div class="pkg-feat"><div class="pkg-feat-icon">🎁</div><span contenteditable="true">Байгууллагын ажилтан болон VIP харилцагчийн багц</span></div>
+        <div class="pkg-feat"><div class="pkg-feat-icon">⚡</div><span contenteditable="true">Загвар дизайн гаргах, зөвлөх үйлчилгээ үнэгүй</span></div>
+      </div>
+      <a class="pkg-cta" href="#contact-section">
+        Хайрцагны загвар үзэх
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+      </a>
+      <div class="pkg-note" contenteditable="true">* Хамгийн бага захиалга: 50 ширхэг · Загвар гаргах хугацаа: 2-3 хоног</div>
+    </div>
+  </div>
 </div>
 
 <div class="divider"></div>
