@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKLAD Logistics — ХАСБАНКАНД ЗОРИУЛСАН САНАЛ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300&display=swap');
+
+:root {
+  --bg:        #0D0D0D;
+  --bg1:       #141414;
+  --bg2:       #1A1A1A;
+  --bg3:       #222222;
+  --border:    rgba(255,255,255,0.07);
+  --border-g:  rgba(212,175,55,0.25);
+  --gold:      #D4AF37;
+  --gold2:     #F0D060;
+  --gold3:     #8B6914;
+  --gold-dim:  rgba(212,175,55,0.12);
+  --white:     #FFFFFF;
+  --gray1:     #E8E8E8;
+  --gray2:     #A0A0A0;
+  --gray3:     #606060;
+  --amber:     #F5A623;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ═══ EDITABLE ═══ */
+[contenteditable]{outline:none;cursor:text;border-radius:3px;transition:background .2s,box-shadow .2s;padding:1px 3px;margin:-1px -3px}
+[contenteditable]:hover{background:rgba(212,175,55,0.04)}
+[contenteditable]:focus{background:rgba(212,175,55,0.08);box-shadow:0 0 0 2px rgba(212,175,55,0.2)}
+.edit-hint{
+  position:fixed;bottom:20px;left:20px;z-index:300;
+  background:rgba(20,20,20,0.92);backdrop-filter:blur(16px);
+  border:1px solid var(--border-g);border-radius:10px;
+  padding:14px 20px;font-size:11px;color:var(--gray2);
+  display:flex;align-items:center;gap:10px;
+  opacity:0;animation:slideUp .5s 2s ease forwards;
+  pointer-events:none;
+}
+.edit-hint::before{content:'✏️';font-size:16px}
+@keyframes slideUp{to{opacity:1;pointer-events:auto}}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 56px;height:64px;
+  background:rgba(13,13,13,0.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-size:15px;font-weight:800;letter-spacing:0.08em;color:var(--white);text-transform:uppercase}
+.nav-logo em{font-style:normal;color:var(--gold)}
+.nav-tag{
+  font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--gold);background:var(--gold-dim);border:1px solid var(--border-g);
+  padding:5px 14px;border-radius:4px;
+}
+.nav-date{font-size:12px;color:var(--gray3);font-weight:400;letter-spacing:0.04em}
+
+/* ═══ HERO ═══ */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  padding:100px 56px 80px;
+  text-align:center;
+}
+.hero-noise{
+  position:absolute;inset:0;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:0.4;pointer-events:none;
+}
+.hero-beam{
+  position:absolute;top:-20%;left:50%;transform:translateX(-50%);
+  width:1px;height:80vh;
+  background:linear-gradient(180deg,transparent 0%,var(--gold) 30%,var(--gold2) 50%,var(--gold) 70%,transparent 100%);
+  opacity:0.18;animation:beamPulse 3s ease-in-out infinite;
+}
+@keyframes beamPulse{0%,100%{opacity:0.12;height:70vh}50%{opacity:0.22;height:85vh}}
+.hero-orb{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:900px;height:400px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(212,175,55,0.13) 0%,rgba(212,175,55,0.04) 40%,transparent 70%);
+  pointer-events:none;
+}
+.hero-content{position:relative;z-index:1;max-width:820px}
+.hero-chip{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--gold-dim);border:1px solid var(--border-g);
+  color:var(--gold);font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+  padding:7px 18px;border-radius:2px;margin-bottom:36px;
+  opacity:0;animation:riseIn 0.7s 0.2s ease forwards;
+}
+.hero-chip-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 1.8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.hero-h1{
+  font-size:clamp(42px,7vw,86px);font-weight:900;line-height:0.96;letter-spacing:-0.03em;
+  margin-bottom:24px;
+  opacity:0;animation:riseIn 0.8s 0.4s ease forwards;
+}
+.hero-h1 .g{
+  color:transparent;
+  background:linear-gradient(135deg,var(--gold3) 0%,var(--gold) 40%,var(--gold2) 60%,var(--gold) 80%,var(--gold3) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  background-size:200% 100%;
+  animation:shimmer 4s 1.2s linear infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.hero-sub{
+  font-size:13px;font-weight:400;color:var(--gray2);letter-spacing:0.2em;text-transform:uppercase;
+  margin-bottom:32px;
+  opacity:0;animation:riseIn 0.8s 0.6s ease forwards;
+}
+.hero-rule{
+  width:0;height:1px;margin:32px auto;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  animation:expandW 1s 1s ease forwards;
+}
+@keyframes expandW{to{width:300px}}
+.hero-meta{
+  font-size:14px;color:var(--gray3);
+  opacity:0;animation:riseIn 0.7s 1.1s ease forwards;
+}
+.hero-meta strong{color:var(--gray1);font-weight:600}
+.hero-scroll{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;opacity:0;animation:riseIn 0.7s 1.6s ease forwards;
+}
+.hero-scroll span{font-size:9px;letter-spacing:0.2em;color:var(--gray3);text-transform:uppercase}
+.scroll-pip{width:1px;height:40px;background:linear-gradient(180deg,var(--gold),transparent);animation:pipDrop 2s ease-in-out infinite}
+@keyframes pipDrop{0%,100%{transform:scaleY(1);opacity:0.6}50%{transform:scaleY(1.3);opacity:1}}
+
+@keyframes riseIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ SECTION SHELL ═══ */
+.sec{padding:96px 56px;max-width:1280px;margin:0 auto}
+.sec-lbl{
+  font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);
+  display:flex;align-items:center;gap:12px;margin-bottom:16px;
+}
+.sec-lbl::after{content:'';flex:0 0 32px;height:1px;background:var(--gold);opacity:0.4}
+.sec-h2{font-size:clamp(28px,4vw,52px);font-weight:800;letter-spacing:-0.025em;line-height:1.1;margin-bottom:14px}
+.sec-h2 .g{color:var(--gold)}
+.sec-p{font-size:15px;color:var(--gray2);line-height:1.75;max-width:540px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border) 30%,var(--border) 70%,transparent);margin:0}
+
+/* ═══ ABOUT ═══ */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;margin-top:56px}
+.adv-list{margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.adv-row{
+  display:flex;align-items:center;gap:14px;padding:14px 18px;
+  border:1px solid var(--border);border-radius:6px;background:var(--bg1);
+  font-size:14px;color:var(--gray1);font-weight:500;
+  transition:border-color .25s,background .25s,transform .25s;
+  opacity:0;transform:translateX(-18px);
+}
+.adv-row.in{opacity:1;transform:translateX(0)}
+.adv-row:hover{border-color:var(--border-g);background:rgba(212,175,55,0.04);transform:translateX(4px)}
+.adv-icon{font-size:16px;flex-shrink:0}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stat-box{
+  background:var(--bg1);border:1px solid var(--border);border-radius:8px;
+  padding:28px 24px;position:relative;overflow:hidden;
+  transition:border-color .25s,transform .3s;cursor:default;
+  opacity:0;transform:translateY(24px);
+}
+.stat-box.in{opacity:1;transform:translateY(0)}
+.stat-box:hover{border-color:var(--border-g);transform:translateY(-4px)}
+.stat-box::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(212,175,55,0.04) 0%,transparent 60%);
+  pointer-events:none;
+}
+.stat-n{font-size:40px;font-weight:900;color:var(--gold);line-height:1;letter-spacing:-0.03em;margin-bottom:8px}
+.stat-d{font-size:12px;color:var(--gray2);line-height:1.5}
+
+/* ═══ PRODUCTS ═══ */
+.products-wrap{background:var(--bg1);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
+.prod-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;position:relative;cursor:pointer;
+  transition:border-color .3s,transform .3s,box-shadow .3s;
+  opacity:0;transform:translateY(32px);
+}
+.prod-card.in{opacity:1;transform:translateY(0)}
+.prod-card:hover{border-color:rgba(212,175,55,0.4);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.prod-card:hover .prod-img-wrap::after{opacity:1}
+.prod-img-wrap{
+  position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;
+  background:var(--bg3);
+}
+.prod-img-wrap::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,0.7) 100%);
+  opacity:0.6;transition:opacity .3s;
+}
+.prod-img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;display:block}
+.prod-card:hover .prod-img{transform:scale(1.06)}
+.prod-placeholder{
+  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(135deg,var(--bg3) 0%,var(--bg2) 100%);
+  color:var(--gray3);font-size:12px;letter-spacing:0.05em;
+}
+.prod-placeholder-icon{font-size:40px;opacity:0.3}
+.upload-hint{
+  position:absolute;top:10px;right:10px;z-index:10;
+  background:rgba(0,0,0,0.7);border:1px solid var(--border-g);
+  border-radius:4px;padding:5px 10px;
+  font-size:10px;color:var(--gold);letter-spacing:0.08em;font-weight:600;
+  cursor:pointer;transition:background .2s;
+  display:flex;align-items:center;gap:5px;
+}
+.upload-hint:hover{background:rgba(212,175,55,0.15)}
+.upload-input{display:none}
+.prod-badge{
+  position:absolute;top:10px;left:10px;z-index:10;
+  background:var(--gold);color:#000;
+  font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
+  padding:4px 10px;border-radius:3px;
+}
+.prod-body{padding:20px 22px 22px}
+.prod-name{font-size:17px;font-weight:700;margin-bottom:6px;color:var(--white)}
+.prod-tagline{font-size:13px;color:var(--gray2);line-height:1.6;margin-bottom:16px}
+.prod-footer{display:flex;align-items:center;justify-content:space-between}
+.prod-price{font-size:15px;font-weight:700;color:var(--gold)}
+.prod-price span{font-size:11px;color:var(--gray3);font-weight:400;margin-left:4px}
+.prod-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--gold-dim);border:1px solid var(--border-g);
+  color:var(--gold);font-size:11px;font-weight:700;letter-spacing:0.08em;
+  padding:8px 14px;border-radius:4px;cursor:pointer;text-transform:uppercase;
+  transition:background .2s,color .2s,transform .15s;
+}
+.prod-btn:hover{background:var(--gold);color:#000;transform:scale(1.03)}
+.prod-btn svg{width:10px;height:10px;transition:transform .2s}
+.prod-btn:hover svg{transform:translateX(2px)}
+
+/* DELETE BUTTON */
+.prod-delete{
+  position:absolute;top:10px;right:10px;z-index:15;
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(220,38,38,0.8);border:1px solid rgba(220,38,38,0.5);
+  color:#fff;font-size:14px;font-weight:300;
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;line-height:1;
+}
+.prod-card:hover .prod-delete{display:flex}
+.prod-delete:hover{background:#dc2626;transform:scale(1.15)}
+
+/* ADD CARD */
+.add-card{
+  border:2px dashed var(--border-g);border-radius:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  min-height:340px;cursor:pointer;
+  transition:border-color .3s,background .3s,transform .3s;
+  background:transparent;
+}
+.add-card:hover{border-color:var(--gold);background:rgba(212,175,55,0.04);transform:translateY(-4px)}
+.add-card-icon{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--gold-dim);border:2px solid var(--border-g);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:var(--gold);font-weight:300;
+  transition:all .3s;
+}
+.add-card:hover .add-card-icon{background:var(--gold);color:#000;border-color:var(--gold);transform:scale(1.1)}
+.add-card-text{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase}
+.add-card-sub{font-size:11px;color:var(--gray3)}
+
+/* ═══ MODAL ═══ */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{
+  background:var(--bg1);border:1px solid var(--border-g);border-radius:14px;
+  width:100%;max-width:900px;max-height:90vh;overflow:hidden;
+  display:flex;flex-direction:column;
+  transform:scale(0.94) translateY(20px);transition:transform .35s cubic-bezier(.22,1,.36,1);
+  box-shadow:0 40px 100px rgba(0,0,0,0.7),0 0 0 1px rgba(212,175,55,0.1);
+}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0)}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 28px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.modal-title-area{display:flex;flex-direction:column;gap:4px}
+.modal-title{font-size:20px;font-weight:800;letter-spacing:-0.01em;color:var(--white)}
+.modal-sub{font-size:12px;color:var(--gray3);font-weight:400}
+.modal-close{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--gray2);font-size:18px;font-weight:300;line-height:1;
+  transition:background .2s,color .2s,transform .2s;
+}
+.modal-close:hover{background:rgba(255,255,255,0.1);color:var(--white);transform:rotate(90deg)}
+.modal-body{display:flex;flex:1;overflow:hidden}
+.modal-gallery{
+  flex:0 0 52%;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.modal-main-img{
+  flex:1;position:relative;overflow:hidden;min-height:0;
+  background:var(--bg3);display:flex;align-items:center;justify-content:center;
+}
+.modal-main-img img{width:100%;height:100%;object-fit:cover;display:block}
+.modal-main-placeholder{
+  width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;color:var(--gray3);
+}
+.modal-main-placeholder .big-icon{font-size:56px;opacity:0.2}
+.modal-main-placeholder p{font-size:12px;letter-spacing:0.05em;opacity:0.5}
+.modal-thumbs{
+  display:flex;gap:6px;padding:10px;overflow-x:auto;flex-shrink:0;
+  background:var(--bg2);border-top:1px solid var(--border);
+  scrollbar-width:none;
+}
+.modal-thumbs::-webkit-scrollbar{display:none}
+.modal-thumb{
+  flex-shrink:0;width:64px;height:52px;border-radius:5px;overflow:hidden;
+  border:2px solid transparent;cursor:pointer;transition:border-color .2s,transform .2s;
+  background:var(--bg3);position:relative;
+}
+.modal-thumb.active{border-color:var(--gold)}
+.modal-thumb:hover{transform:scale(1.06)}
+.modal-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.modal-thumb-del{
+  position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;
+  background:rgba(220,38,38,0.85);color:#fff;font-size:10px;font-weight:700;
+  display:none;align-items:center;justify-content:center;cursor:pointer;
+  line-height:1;border:none;
+}
+.modal-thumb:hover .modal-thumb-del{display:flex}
+.modal-thumb-add{
+  flex-shrink:0;width:64px;height:52px;border-radius:5px;
+  border:2px dashed var(--border-g);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;color:var(--gold);font-size:18px;
+  transition:background .2s,border-color .2s;
+}
+.modal-thumb-add:hover{background:var(--gold-dim);border-color:var(--gold)}
+.modal-thumb-add span{font-size:9px;font-weight:700;letter-spacing:0.06em;line-height:1}
+.modal-info{flex:1;overflow-y:auto;padding:28px;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
+.modal-badge-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.m-badge{
+  font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;
+  padding:4px 10px;border-radius:3px;
+}
+.m-badge.gold-badge{background:var(--gold);color:#000}
+.m-badge.outline-badge{background:transparent;border:1px solid var(--border);color:var(--gray2)}
+.modal-prod-name{font-size:26px;font-weight:900;letter-spacing:-0.02em;margin-bottom:8px}
+.modal-prod-desc{font-size:14px;color:var(--gray2);line-height:1.75;margin-bottom:24px}
+.modal-price-row{
+  display:flex;align-items:baseline;gap:10px;margin-bottom:24px;
+  padding:18px 20px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);
+}
+.modal-price-big{font-size:30px;font-weight:900;color:var(--gold);letter-spacing:-0.02em}
+.modal-price-unit{font-size:13px;color:var(--gray3)}
+.modal-specs{margin-bottom:24px}
+.modal-specs-title{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.spec-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.spec-row:last-child{border-bottom:none}
+.spec-k{color:var(--gray3);font-weight:500}
+.spec-v{color:var(--white);font-weight:600;text-align:right}
+.modal-cta-row{display:flex;gap:10px;margin-top:20px}
+.m-cta-primary{
+  flex:1;background:var(--gold);color:#000;border:none;border-radius:6px;
+  padding:14px 20px;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s,transform .15s;
+}
+.m-cta-primary:hover{background:var(--gold2);transform:scale(1.02)}
+.m-cta-secondary{
+  background:transparent;color:var(--gold);border:1px solid var(--border-g);border-radius:6px;
+  padding:14px 18px;font-size:13px;font-weight:700;letter-spacing:0.06em;
+  cursor:pointer;transition:background .2s;
+}
+.m-cta-secondary:hover{background:var(--gold-dim)}
+.modal-upload-info{
+  font-size:11px;color:var(--gray3);text-align:center;margin-top:12px;line-height:1.6;
+  padding:10px;border:1px dashed var(--border);border-radius:6px;
+}
+
+/* ═══ PRICING ═══ */
+.pricing-table{
+  margin-top:56px;border:1px solid var(--border);border-radius:10px;overflow:hidden;
+  opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease;
+}
+.pricing-table.in{opacity:1;transform:translateY(0)}
+.pt-head{
+  display:grid;grid-template-columns:2.2fr 1fr 1.1fr 1fr;
+  background:rgba(212,175,55,0.07);border-bottom:1px solid var(--border-g);
+  padding:14px 28px;
+}
+.pt-head span{font-size:10px;font-weight:700;letter-spacing:0.14em;color:var(--gold);text-transform:uppercase}
+.pt-row{
+  display:grid;grid-template-columns:2.2fr 1fr 1.1fr 1fr;
+  padding:20px 28px;border-bottom:1px solid var(--border);align-items:center;
+  transition:background .2s;
+}
+.pt-row:last-child{border-bottom:none}
+.pt-row:hover{background:rgba(255,255,255,0.02)}
+.pt-name{font-size:15px;font-weight:600;color:var(--white)}
+.pt-qty,.pt-unit{font-size:14px;color:var(--gray2)}
+.pt-total{font-size:15px;font-weight:700;color:var(--gold);text-align:right}
+.total-card{
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(135deg,rgba(212,175,55,0.1),rgba(212,175,55,0.04));
+  border:1px solid var(--border-g);border-radius:10px;padding:28px 36px;margin-top:20px;
+  opacity:0;transform:translateY(20px);transition:opacity .6s .2s ease,transform .6s .2s ease;
+}
+.total-card.in{opacity:1;transform:translateY(0)}
+.tc-lbl{font-size:13px;color:var(--gray2);font-weight:500;margin-bottom:6px}
+.tc-note{font-size:11px;color:var(--gray3)}
+.tc-amount{font-size:44px;font-weight:900;color:var(--gold);letter-spacing:-0.03em}
+
+/* ═══ TIMELINE ═══ */
+.tl-wrap{margin-top:56px;position:relative}
+.tl-spine{
+  position:absolute;left:32px;top:32px;bottom:32px;width:2px;
+  background:var(--border);z-index:0;
+}
+.tl-spine-fill{
+  width:100%;height:0;
+  background:linear-gradient(180deg,var(--gold),var(--gold2));
+  transition:height 1.4s .2s ease;
+}
+.tl-spine-fill.in{height:100%}
+.tl-steps{display:flex;flex-direction:column;gap:0;position:relative;z-index:1}
+.tl-step{
+  display:grid;grid-template-columns:64px 1fr;gap:28px;align-items:start;
+  padding:0 0 48px 0;
+  opacity:0;transform:translateY(24px);transition:opacity .55s ease,transform .55s ease;
+}
+.tl-step:last-child{padding-bottom:0}
+.tl-step.in{opacity:1;transform:translateY(0)}
+.tl-dot{
+  width:64px;height:64px;border-radius:50%;flex-shrink:0;
+  background:var(--bg1);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;font-weight:900;color:var(--gold);
+  transition:border-color .3s,background .3s;position:relative;
+}
+.tl-step.in .tl-dot{border-color:var(--border-g)}
+.tl-step:hover .tl-dot{background:var(--gold-dim);border-color:var(--gold)}
+.tl-step-body{padding-top:16px}
+.tl-week{font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.tl-title{font-size:20px;font-weight:800;margin-bottom:14px;letter-spacing:-0.01em}
+.tl-items{display:flex;flex-direction:column;gap:8px}
+.tl-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg1);border:1px solid var(--border);border-radius:6px;
+  padding:11px 16px;font-size:13px;color:var(--gray1);
+  transition:border-color .2s,transform .2s;
+}
+.tl-item:hover{border-color:var(--border-g);transform:translateX(4px)}
+.tl-item-icon{font-size:15px}
+
+/* ═══ RESULTS ═══ */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:56px;max-width:720px}
+.res-card{
+  display:flex;align-items:flex-start;gap:16px;
+  background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:24px 22px;
+  transition:border-color .25s,transform .25s;
+  opacity:0;transform:translateY(24px);
+}
+.res-card.in{opacity:1;transform:translateY(0)}
+.res-card:hover{border-color:var(--border-g);transform:translateY(-3px)}
+.res-icon{
+  width:40px;height:40px;border-radius:8px;flex-shrink:0;
+  background:var(--gold-dim);border:1px solid var(--border-g);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.res-text{font-size:14px;font-weight:600;color:var(--gray1);line-height:1.5}
+
+/* ═══ CONTACT ═══ */
+.contact-section{
+  background:var(--bg1);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  text-align:center;padding:96px 56px;
+}
+.contact-card{
+  max-width:600px;margin:48px auto 0;
+  background:var(--bg2);border:1px solid var(--border-g);border-radius:14px;
+  padding:52px 48px;position:relative;overflow:hidden;
+}
+.contact-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.contact-card::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(212,175,55,0.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+.c-brand{font-size:28px;font-weight:900;letter-spacing:-0.02em;margin-bottom:6px;position:relative;z-index:1}
+.c-brand em{font-style:normal;color:var(--gold)}
+.c-role{font-size:13px;color:var(--gray3);margin-bottom:36px;position:relative;z-index:1}
+.c-phones{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;position:relative;z-index:1}
+.c-phone{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg1);border:1px solid var(--border);border-radius:8px;
+  padding:14px 24px;font-size:18px;font-weight:800;color:var(--white);
+  text-decoration:none;transition:border-color .2s,background .2s,transform .2s,color .2s;
+}
+.c-phone:hover{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);transform:translateY(-2px)}
+.c-tagline{font-size:13px;color:var(--gray3);font-style:italic;line-height:1.7;position:relative;z-index:1}
+
+footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-spacing:0.04em}
+
+/* ═══ REVEAL ═══ */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ═══ TOAST ═══ */
+.toast{
+  position:fixed;top:80px;right:20px;z-index:300;
+  background:rgba(20,20,20,0.95);backdrop-filter:blur(16px);
+  border:1px solid var(--border-g);border-radius:8px;
+  padding:12px 20px;font-size:12px;color:var(--gold);font-weight:600;
+  transform:translateX(120%);transition:transform .3s ease;
+}
+.toast.show{transform:translateX(0)}
+
+@media(max-width:960px){
+  nav{padding:0 24px}
+  .sec{padding:72px 24px}
+  .about-grid{grid-template-columns:1fr;gap:48px}
+  .products-grid{grid-template-columns:1fr 1fr}
+  .modal-body{flex-direction:column}
+  .modal-gallery{flex:0 0 240px;border-right:none;border-bottom:1px solid var(--border)}
+  .results-grid{grid-template-columns:1fr}
+  .pt-head,.pt-row{grid-template-columns:2fr 1fr 1fr;padding:12px 16px}
+  .pt-head span:nth-child(3),.pt-row .pt-unit{display:none}
+  .hero{padding:90px 24px 70px}
+  .contact-section{padding:72px 24px}
+}
+@media(max-width:620px){
+  .products-grid{grid-template-columns:1fr}
+  .tl-wrap{margin-left:0}
+  .nav .nav-date{display:none}
+  .c-phones{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- EDIT HINT -->
+<div class="edit-hint">Аль ч текст дээр дарж шууд засварлах боломжтой</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" contenteditable="true">SKLAD <em>Logistics</em></div>
+  <div class="nav-date" contenteditable="true">2026.06.10</div>
+  <div class="nav-tag" contenteditable="true">ХАСБАНКАНД ЗОРИУЛАВ</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-beam"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-content">
+    <div class="hero-chip"><div class="hero-chip-dot"></div><span contenteditable="true">ОНЦГОЙ АРИЛЖААНЫ САНАЛ</span></div>
+    <h1 class="hero-h1" contenteditable="true">
+      ХАСБАНКАНД<br>
+      ЗОРИУЛСАН<br>
+      <span class="g">БАРАА НИЙЛҮҮЛЭХ</span><br>
+      САНАЛ
+    </h1>
+    <div class="hero-sub" contenteditable="true">Best Brickets LLC &nbsp;·&nbsp; SKLAD Logistics</div>
+    <div class="hero-rule"></div>
+    <div class="hero-meta">Танилцуулж буй: <strong contenteditable="true">Элбэгжаргал</strong> &nbsp;·&nbsp; <span contenteditable="true">2026 оны 06 сарын 10</span></div>
+  </div>
+  <div class="hero-scroll" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">
+    <span>Доош харах</span>
+    <div class="scroll-pip"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section class="sec" id="about">
+  <div class="sec-lbl reveal"><span contenteditable="true">Бидний тухай</span></div>
+  <h2 class="sec-h2 reveal" contenteditable="true">SKLAD — <span class="g">Найдвартай</span><br>нийлүүлэгч</h2>
+  <p class="sec-p reveal" contenteditable="true">2024 оноос Улаанбаатар хотод үйл ажиллагаа явуулж, байгууллагуудад чанартай, цаг тухайд нь нийлүүлэлт хийдэг.</p>
+  <div class="about-grid">
+    <div>
+      <div class="adv-list">
+        <div class="adv-row"><span class="adv-icon">✓</span><span contenteditable="true">Найдвартай нийлүүлэлт — гэрээт хугацаанд яг цагт</span></div>
+        <div class="adv-row"><span class="adv-icon">💰</span><span contenteditable="true">Өрсөлдөхүйц үнэ — зах зээлийн дундажаас доогуур</span></div>
+        <div class="adv-row"><span class="adv-icon">🛡</span><span contenteditable="true">Баталгаат үйлчилгээ — сэтгэл ханамжийн баталгаа</span></div>
+        <div class="adv-row"><span class="adv-icon">📦</span><span contenteditable="true">Карго үйлчилгээ — гадаадаас шууд захиалах боломж</span></div>
+        <div class="adv-row"><span class="adv-icon">🛒</span><span contenteditable="true">Онлайн захиалга — 4 дэлгүүрээр дамжуулан</span></div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-n" contenteditable="true" data-target="2024" data-year="1">2024</div><div class="stat-d" contenteditable="true">Үйл ажиллагаа<br>эхэлсэн он</div></div>
+      <div class="stat-box"><div class="stat-n" contenteditable="true" data-target="10">10+</div><div class="stat-d" contenteditable="true">Байгууллагатай<br>хамтран ажилласан</div></div>
+      <div class="stat-box"><div class="stat-n" contenteditable="true" data-target="5000">5,000+</div><div class="stat-d" contenteditable="true">Нийт<br>харилцагчид</div></div>
+      <div class="stat-box"><div class="stat-n" contenteditable="true" data-target="4">4</div><div class="stat-d" contenteditable="true">Онлайн<br>дэлгүүр</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRODUCTS -->
+<div class="products-wrap">
+<section class="sec" id="products">
+  <div class="sec-lbl reveal"><span contenteditable="true">Санал болгож буй бараа</span></div>
+  <h2 class="sec-h2 reveal" contenteditable="true">Бүтээгдэхүүний <span class="g">каталог</span></h2>
+  <p class="sec-p reveal" contenteditable="true">Зураг дээр дарж дэлгэрэнгүй мэдээлэл харах боломжтой. Та өөрийн зургийг оруулан тохируулах боломжтой.</p>
+  <div class="products-grid" id="products-grid">
+    <!-- Cards will be rendered by JS -->
+  </div>
+</section>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <div class="modal-title" id="modal-title">Бараа</div>
+        <div class="modal-sub" id="modal-sub">Дэлгэрэнгүй мэдээлэл</div>
+      </div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-gallery">
+        <div class="modal-main-img" id="modal-main-img">
+          <div class="modal-main-placeholder" id="modal-main-placeholder">
+            <div class="big-icon" id="modal-placeholder-icon">📄</div>
+            <p>Зураг байхгүй байна</p>
+          </div>
+          <img id="modal-main-src" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
+        </div>
+        <div class="modal-thumbs" id="modal-thumbs">
+          <div class="modal-thumb-add" onclick="triggerModalUpload()">
+            <span>+</span>
+            <span>Зураг</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-info">
+        <div class="modal-badge-row">
+          <span class="m-badge gold-badge">БЭЛЭН НИЙЛҮҮЛЭЛТ</span>
+          <span class="m-badge outline-badge" id="modal-category">БАРАА</span>
+        </div>
+        <div class="modal-prod-name" id="modal-prod-name" contenteditable="true">Нэр</div>
+        <div class="modal-prod-desc" id="modal-prod-desc" contenteditable="true">Тайлбар</div>
+        <div class="modal-price-row">
+          <div class="modal-price-big" id="modal-price" contenteditable="true">—</div>
+          <div class="modal-price-unit" id="modal-price-unit" contenteditable="true">/ нэгж</div>
+        </div>
+        <div class="modal-specs">
+          <div class="modal-specs-title">Техникийн үзүүлэлт</div>
+          <div id="modal-specs-body"></div>
+        </div>
+        <div class="modal-cta-row">
+          <button class="m-cta-primary" onclick="closeModal();document.getElementById('contact-section').scrollIntoView({behavior:'smooth'})">Захиалах</button>
+          <button class="m-cta-secondary" onclick="closeModal()">Хаах</button>
+        </div>
+        <div class="modal-upload-info">
+          📷 + дарж олон зураг нэмэх боломжтой. Зураг дээр дарж солих, ✕ дарж устгах.
+        </div>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none" onchange="handleModalImageUpload(event)">
+</div>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<section class="sec" id="pricing">
+  <div class="sec-lbl reveal"><span contenteditable="true">Үнийн санал</span></div>
+  <h2 class="sec-h2 reveal" contenteditable="true">Ил тод, <span class="g">өрсөлдөхүйц</span> үнэ</h2>
+  <p class="sec-p reveal" contenteditable="true">Хасбанкны хэрэгцээнд нийцүүлэн боловсруулсан үнийн дэлгэрэнгүй санал.</p>
+  <div class="pricing-table">
+    <div class="pt-head">
+      <span>Бараа</span><span>Тоо хэмжээ</span><span>Нэгж үнэ</span><span style="text-align:right">Нийт дүн</span>
+    </div>
+    <div class="pt-row">
+      <div class="pt-name" contenteditable="true">📄 А4 цаас</div>
+      <div class="pt-qty" contenteditable="true">500 боодол</div>
+      <div class="pt-unit" contenteditable="true">18,000₮</div>
+      <div class="pt-total" contenteditable="true">9,000,000₮</div>
+    </div>
+    <div class="pt-row">
+      <div class="pt-name" contenteditable="true">✒️ Үзэг</div>
+      <div class="pt-qty" contenteditable="true">2,000 ширхэг</div>
+      <div class="pt-unit" contenteditable="true">1,200₮</div>
+      <div class="pt-total" contenteditable="true">2,400,000₮</div>
+    </div>
+    <div class="pt-row">
+      <div class="pt-name" contenteditable="true">📁 Хавтас</div>
+      <div class="pt-qty" contenteditable="true">500 ширхэг</div>
+      <div class="pt-unit" contenteditable="true">4,500₮</div>
+      <div class="pt-total" contenteditable="true">2,250,000₮</div>
+    </div>
+  </div>
+  <div class="total-card">
+    <div>
+      <div class="tc-lbl" contenteditable="true">Нийт төсөвт зардал</div>
+      <div class="tc-note" contenteditable="true">НӨАТ орсон / Sample багцын үнэ</div>
+    </div>
+    <div class="tc-amount" contenteditable="true">15,800,000₮</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TIMELINE -->
+<section class="sec" id="timeline">
+  <div class="sec-lbl reveal"><span contenteditable="true">Хэрэгжүүлэх төлөвлөгөө</span></div>
+  <h2 class="sec-h2 reveal" contenteditable="true">3 долоо хоногийн <span class="g">алхам</span></h2>
+  <p class="sec-p reveal" contenteditable="true">Гэрээ байгуулснаас эхлэн, sample хүргэлт хийх хүртэл тодорхой алхамаар явна.</p>
+  <div class="tl-wrap">
+    <div class="tl-spine"><div class="tl-spine-fill" id="tlFill"></div></div>
+    <div class="tl-steps">
+      <div class="tl-step">
+        <div class="tl-dot">1</div>
+        <div class="tl-step-body">
+          <div class="tl-week" contenteditable="true">1-р долоо хоног</div>
+          <div class="tl-title" contenteditable="true">Эхлэл ба Бэлтгэл</div>
+          <div class="tl-items">
+            <div class="tl-item"><span class="tl-item-icon">📝</span><span contenteditable="true">Гэрээ байгуулах</span></div>
+            <div class="tl-item"><span class="tl-item-icon">🎨</span><span contenteditable="true">Загвар гаргах</span></div>
+            <div class="tl-item"><span class="tl-item-icon">🛒</span><span contenteditable="true">Sample бүтээгдэхүүн захиалах</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot">2</div>
+        <div class="tl-step-body">
+          <div class="tl-week" contenteditable="true">2-р долоо хоног</div>
+          <div class="tl-title" contenteditable="true">Захиалга бэлэн болох явц</div>
+          <div class="tl-items">
+            <div class="tl-item"><span class="tl-item-icon">📦</span><span contenteditable="true">Бараа бэлтгэл хийх</span></div>
+            <div class="tl-item"><span class="tl-item-icon">✅</span><span contenteditable="true">Чанарын хяналт шалгалт</span></div>
+            <div class="tl-item"><span class="tl-item-icon">📋</span><span contenteditable="true">Нэхэмжлэл, баримт бэлтгэх</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot">3</div>
+        <div class="tl-step-body">
+          <div class="tl-week" contenteditable="true">3-р долоо хоног</div>
+          <div class="tl-title" contenteditable="true">Хурдан тээврээр хүргэлт</div>
+          <div class="tl-items">
+            <div class="tl-item"><span class="tl-item-icon">🚚</span><span contenteditable="true">Хурдан шуурхай тээвэр зохион байгуулах</span></div>
+            <div class="tl-item"><span class="tl-item-icon">🤝</span><span contenteditable="true">Sample хүлээлгэн өгөх</span></div>
+            <div class="tl-item"><span class="tl-item-icon">📞</span><span contenteditable="true">Дараагийн захиалгын төлөвлөлт</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- RESULTS -->
+<section class="sec" id="results">
+  <div class="sec-lbl reveal"><span contenteditable="true">Хүлээгдэж буй үр дүн</span></div>
+  <h2 class="sec-h2 reveal" contenteditable="true">Хамтран ажилласнаар <span class="g">юу олох</span> вэ?</h2>
+  <div class="results-grid">
+    <div class="res-card"><div class="res-icon">✓</div><div class="res-text" contenteditable="true">Найдвартай нийлүүлэлт — цаг алдалгүй</div></div>
+    <div class="res-card"><div class="res-icon">💰</div><div class="res-text" contenteditable="true">Зардлын хэмнэлт — оновчтой үнэ</div></div>
+    <div class="res-card"><div class="res-icon">⚡</div><div class="res-text" contenteditable="true">Шуурхай үйлчилгээ — яаралтай нийлүүлэлт</div></div>
+    <div class="res-card"><div class="res-icon">🤝</div><div class="res-text" contenteditable="true">Урт хугацааны хамтын ажиллагаа</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<div class="contact-section" id="contact-section">
+  <div class="sec-lbl reveal" style="justify-content:center"><span contenteditable="true">Холбоо барих</span></div>
+  <h2 class="sec-h2 reveal" style="text-align:center" contenteditable="true">Асуулт байна уу?<br><span class="g">Баяртайгаар</span> хариулна.</h2>
+  <p class="sec-p reveal" style="text-align:center;margin:0 auto" contenteditable="true">Хасбанкны хэрэгцээт аливаа асуулт, саналыг хүлээн авч шуурхай хариулна.</p>
+  <div class="contact-card reveal">
+    <div class="c-brand" contenteditable="true">SKLAD <em>Logistics</em></div>
+    <div class="c-role" contenteditable="true">Best Brickets LLC &nbsp;·&nbsp; Улаанбаатар, Монгол</div>
+    <div class="c-phones">
+      <a class="c-phone" href="tel:72221008"><span contenteditable="true">📞 7222-1008</span></a>
+      <a class="c-phone" href="tel:95901008"><span contenteditable="true">📱 9590-1008</span></a>
+    </div>
+    <div class="c-tagline" contenteditable="true">"Таны байгууллагын хэрэгцээнд нийцсэн,<br>найдвартай бараа нийлүүлэгч байхыг эрмэлздэг."</div>
+  </div>
+</div>
+
+<footer contenteditable="true">© 2026 SKLAD Logistics · Best Brickets LLC · Хасбанканд зориулсан нууц арилжааны санал</footer>
+
+<script>
+// ═══════════════════════════════
+//  PRODUCT DATA
+// ═══════════════════════════════
+let products = [
+  {
+    id: 0,
+    name: 'А4 Цаас',
+    category: 'ЦААС',
+    icon: '📄',
+    tagline: 'Өндөр чанарын принтерт тохирсон 80г/м² цаас',
+    desc: 'Өндөр чанарын 80г/м² нягтралтай, принтер болон фотокопид тохирсон А4 формат цаас. Байгууллагын бичиг баримт, тайлан, гэрээ болон өдөр тутмын хэрэгцээнд тохиромжтой.',
+    price: '18,000₮',
+    priceLabel: '18,000₮',
+    unit: '/ боодол (500 хуудас)',
+    unitLabel: '/ боодол',
+    specs: [
+      ['Формат', 'A4 (210 × 297mm)'],
+      ['Нягтрал', '80 г/м²'],
+      ['Боодолд', '500 хуудас'],
+      ['Захиалгын тоо', '500 боодол'],
+      ['Нийт хуудас', '250,000 хуудас'],
+      ['Хүргэлт', '3-р долоо хоногт'],
+    ],
+    images: []
+  },
+  {
+    id: 1,
+    name: 'Үзэг',
+    category: 'БИЧГИЙН ХЭРЭГСЭЛ',
+    icon: '✒️',
+    tagline: 'Удаан ажиллагаатай бичих хэрэгсэл, олон өнгөтэй',
+    desc: 'Удаан ажиллагаатай, гэмтэлгүй, жигд бичдэг чанарын үзэг. Хар, хөх өнгөтэй. Ажлын байрны бүх хэрэгцээнд тохирсон, ашиглахад хялбар загвар.',
+    price: '1,200₮',
+    priceLabel: '1,200₮',
+    unit: '/ ширхэг',
+    unitLabel: '/ ширхэг',
+    specs: [
+      ['Өнгө', 'Хар / Хөх'],
+      ['Захиалгын тоо', '2,000 ширхэг'],
+      ['Хайрцагт', '50 ширхэг'],
+      ['Нийт хайрцаг', '40 хайрцаг'],
+      ['Баталгаа', '12 сар'],
+      ['Хүргэлт', '3-р долоо хоногт'],
+    ],
+    images: []
+  },
+  {
+    id: 2,
+    name: 'Хавтас',
+    category: 'АРХИВЫН ХЭРЭГСЭЛ',
+    icon: '📁',
+    tagline: 'Баримт бичиг хадгалах, ангилах зориулалтын хавтас',
+    desc: 'Баримт бичиг хадгалах, ангилах зориулалтын хавтас. A4 хэмжээтэй баримтад тохирсон, бат бэх материалаар хийгдсэн. Архивт, ажлын ширээн дээр хэрэглэхэд тохиромжтой.',
+    price: '4,500₮',
+    priceLabel: '4,500₮',
+    unit: '/ ширхэг',
+    unitLabel: '/ ширхэг',
+    specs: [
+      ['Формат', 'A4 (220 × 305mm)'],
+      ['Материал', 'PP хуванцар'],
+      ['Захиалгын тоо', '500 ширхэг'],
+      ['Өнгө', 'Цэнхэр / Улаан / Ногоон'],
+      ['Багтаамж', '200 хуудас хүртэл'],
+      ['Хүргэлт', '3-р долоо хоногт'],
+    ],
+    images: []
+  }
+];
+
+let nextId = 3;
+let currentModal = null;
+let currentImageIdx = 0;
+
+// ═══════════════════════════════
+//  TOAST
+// ═══════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════
+//  RENDER PRODUCT CARDS
+// ═══════════════════════════════
+function renderProductCards() {
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = '';
+
+  products.forEach((p, idx) => {
+    const card = document.createElement('div');
+    card.className = 'prod-card in';
+    card.setAttribute('data-idx', idx);
+    card.onclick = (e) => {
+      if (e.target.closest('.upload-hint') || e.target.closest('.prod-delete') || e.target.closest('[contenteditable]')) return;
+      openModal(idx);
+    };
+
+    const hasImg = p.images.length > 0;
+
+    card.innerHTML = `
+      <div class="prod-img-wrap">
+        <div class="prod-placeholder" id="thumb-placeholder-${p.id}" style="${hasImg ? 'display:none' : ''}">
+          <span class="prod-placeholder-icon">${p.icon}</span>
+          <span>Зураг оруулах</span>
+        </div>
+        <img class="prod-img" id="card-img-${p.id}" src="${hasImg ? p.images[0] : ''}" alt="${p.name}" style="${hasImg ? '' : 'display:none'}">
+        <div class="prod-badge">БЭЛЭН</div>
+        <label class="upload-hint" onclick="event.stopPropagation()" for="upload-${p.id}">
+          📷 Зураг
+          <input class="upload-input" type="file" id="upload-${p.id}" accept="image/*" onchange="handleUpload(event,${idx})">
+        </label>
+      </div>
+      <div class="prod-body">
+        <div class="prod-name" contenteditable="true" onblur="products[${idx}].name=this.textContent">${p.name}</div>
+        <div class="prod-tagline" contenteditable="true" onblur="products[${idx}].tagline=this.textContent">${p.tagline}</div>
+        <div class="prod-footer">
+          <div class="prod-price" contenteditable="true" onblur="products[${idx}].priceLabel=this.textContent">${p.priceLabel} <span contenteditable="true" onblur="products[${idx}].unitLabel=this.textContent">${p.unitLabel}</span></div>
+          <div class="prod-btn" onclick="event.stopPropagation();openModal(${idx})">
+            Дэлгэрэнгүй
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h6M5 2l3 3-3 3"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="prod-delete" onclick="event.stopPropagation();deleteProduct(${idx})" title="Устгах">✕</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ADD CARD button
+  const addCard = document.createElement('div');
+  addCard.className = 'add-card';
+  addCard.onclick = addNewProduct;
+  addCard.innerHTML = `
+    <div class="add-card-icon">+</div>
+    <div class="add-card-text">Шинэ бараа нэмэх</div>
+    <div class="add-card-sub">Каталогт нэмэх</div>
+  `;
+  grid.appendChild(addCard);
+}
+
+// ═══════════════════════════════
+//  ADD / DELETE PRODUCT
+// ═══════════════════════════════
+function addNewProduct() {
+  const newProd = {
+    id: nextId++,
+    name: 'Шинэ бараа',
+    category: 'БАРАА',
+    icon: '📦',
+    tagline: 'Барааны тайлбар бичих',
+    desc: 'Энд дэлгэрэнгүй тайлбар бичнэ үү.',
+    price: '0₮',
+    priceLabel: '0₮',
+    unit: '/ нэгж',
+    unitLabel: '/ нэгж',
+    specs: [
+      ['Нэр', 'Шинэ бараа'],
+      ['Тоо', '—'],
+      ['Хүргэлт', '—'],
+    ],
+    images: []
+  };
+  products.push(newProd);
+  renderProductCards();
+  showToast('✓ Шинэ бараа нэмэгдлээ');
+
+  // Scroll to the new card
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.prod-card');
+    const last = cards[cards.length - 1];
+    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function deleteProduct(idx) {
+  if (!confirm('Энэ барааг устгах уу?')) return;
+  products.splice(idx, 1);
+  renderProductCards();
+  showToast('Бараа устгагдлаа');
+}
+
+// ═══════════════════════════════
+//  CARD IMAGE UPLOAD
+// ═══════════════════════════════
+function handleUpload(e, idx) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const src = ev.target.result;
+    if (!products[idx].images.length) products[idx].images.push(src);
+    else products[idx].images[0] = src;
+    renderProductCards();
+    showToast('📷 Зураг нэмэгдлээ');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════
+//  MODAL
+// ═══════════════════════════════
+function openModal(idx) {
+  currentModal = idx;
+  currentImageIdx = 0;
+  const p = products[idx];
+  document.getElementById('modal-title').textContent = p.name;
+  document.getElementById('modal-sub').textContent = p.category + ' · Дэлгэрэнгүй мэдээлэл';
+  document.getElementById('modal-category').textContent = p.category;
+  document.getElementById('modal-prod-name').textContent = p.name;
+  document.getElementById('modal-prod-desc').textContent = p.desc;
+  document.getElementById('modal-price').textContent = p.price;
+  document.getElementById('modal-price-unit').textContent = p.unit;
+  document.getElementById('modal-placeholder-icon').textContent = p.icon;
+
+  // Specs
+  const sb = document.getElementById('modal-specs-body');
+  sb.innerHTML = p.specs.map(([k,v], i) =>
+    `<div class="spec-row"><span class="spec-k" contenteditable="true" onblur="products[${idx}].specs[${i}][0]=this.textContent">${k}</span><span class="spec-v" contenteditable="true" onblur="products[${idx}].specs[${i}][1]=this.textContent">${v}</span></div>`
+  ).join('');
+
+  renderModalGallery();
+
+  const overlay = document.getElementById('modal');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  if (currentModal !== null) {
+    // Save modal edits back
+    const p = products[currentModal];
+    p.name = document.getElementById('modal-prod-name').textContent;
+    p.desc = document.getElementById('modal-prod-desc').textContent;
+    p.price = document.getElementById('modal-price').textContent;
+    p.unit = document.getElementById('modal-price-unit').textContent;
+    renderProductCards();
+  }
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function renderModalGallery() {
+  const p = products[currentModal];
+  const mainImg = document.getElementById('modal-main-src');
+  const mainPh = document.getElementById('modal-main-placeholder');
+  const thumbsContainer = document.getElementById('modal-thumbs');
+
+  // Main image
+  if (p.images.length > 0 && currentImageIdx < p.images.length) {
+    mainImg.src = p.images[currentImageIdx];
+    mainImg.style.display = 'block';
+    mainPh.style.display = 'none';
+  } else {
+    mainImg.style.display = 'none';
+    mainPh.style.display = 'flex';
+  }
+
+  // Thumbs
+  let html = '';
+  p.images.forEach((src, i) => {
+    html += `<div class="modal-thumb ${i === currentImageIdx ? 'active' : ''}" onclick="selectModalImage(${i})">
+      <img src="${src}" alt="">
+      <div class="modal-thumb-del" onclick="event.stopPropagation();deleteModalImage(${i})">✕</div>
+    </div>`;
+  });
+  html += `<div class="modal-thumb-add" onclick="triggerModalUpload()"><span>+</span><span>Зураг</span></div>`;
+  thumbsContainer.innerHTML = html;
+}
+
+function selectModalImage(idx) {
+  currentImageIdx = idx;
+  renderModalGallery();
+}
+
+function deleteModalImage(imgIdx) {
+  if (currentModal === null) return;
+  products[currentModal].images.splice(imgIdx, 1);
+  if (currentImageIdx >= products[currentModal].images.length) {
+    currentImageIdx = Math.max(0, products[currentModal].images.length - 1);
+  }
+  renderModalGallery();
+  showToast('Зураг устгагдлаа');
+}
+
+function triggerModalUpload() {
+  document.getElementById('modal-file-input').click();
+}
+
+function handleModalImageUpload(e) {
+  const files = e.target.files;
+  if (!files.length || currentModal === null) return;
+
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const src = ev.target.result;
+      products[currentModal].images.push(src);
+      currentImageIdx = products[currentModal].images.length - 1;
+      renderModalGallery();
+      // Update card thumbnail
+      renderProductCards();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  showToast(`📷 ${files.length} зураг нэмэгдлээ`);
+  e.target.value = '';
+}
+
+// ═══════════════════════════════
+//  INIT RENDER
+// ═══════════════════════════════
+renderProductCards();
+
+// ═══════════════════════════════
+//  SCROLL REVEAL + ANIMATIONS
+// ═══════════════════════════════
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const parent = el.parentElement;
+    const group = [...parent.children].filter(c => c.classList.contains(el.classList[0]));
+    const idx = group.indexOf(el);
+    el.style.transitionDelay = (idx * 0.09) + 's';
+    el.classList.add('in');
+    io.unobserve(el);
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll(
+  '.reveal,.adv-row,.stat-box,.pricing-table,.total-card,.tl-step,.res-card'
+).forEach(el => io.observe(el));
+
+// Timeline spine
+const spineIo = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { document.getElementById('tlFill').classList.add('in'); }
+  });
+}, { threshold: 0.3 });
+const spine = document.getElementById('tlFill');
+if (spine) spineIo.observe(spine.parentElement);
+
+// Counter animation
+function animateCount(el) {
+  const raw = parseInt(el.dataset.target);
+  if (isNaN(raw)) return;
+  const isYear = el.dataset.year === '1';
+  const final = el.textContent;
+  el.dataset.animated = '1';
+  const start = isYear ? raw - 4 : 0;
+  const dur = 1100; const t0 = performance.now();
+  const tick = (now) => {
+    const p = Math.min((now - t0) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const v = Math.floor(start + (raw - start) * ease);
+    el.textContent = isYear ? v : (v >= 1000 ? v.toLocaleString() + '+' : v + '+');
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = final;
+  };
+  requestAnimationFrame(tick);
+}
+const cIo = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const n = e.target.querySelector('.stat-n');
+    if (n && !n.dataset.animated) animateCount(n);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-box').forEach(b => cIo.observe(b));
+</script>
+</body>
+</html>
