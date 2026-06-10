@@ -1287,6 +1287,15 @@ let currentImageIdx = 0;
         // Restore body content as soon as DOM is parsed
         document.addEventListener('DOMContentLoaded', () => {
           document.body.innerHTML = doc.body.innerHTML;
+          
+          // Make sure the floating save button is not stuck in a saving state on load
+          const tempBtn = document.getElementById('floatingSaveBtn');
+          if (tempBtn) {
+            tempBtn.classList.remove('show', 'saving');
+            const txt = document.getElementById('saveBtnText');
+            if (txt) txt.textContent = 'Өөрчлөлтийг хадгалах';
+          }
+
           // Re-initialize state
           renderProductCards();
           
@@ -1682,6 +1691,16 @@ const cIo = new IntersectionObserver(entries => {
 }, { threshold: 0.5 });
 document.querySelectorAll('.stat-box').forEach(b => cIo.observe(b));
 
+// Global safety cleanup: Ensure floating save button is not stuck in a saving state on load
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('floatingSaveBtn');
+  if (btn) {
+    btn.classList.remove('show', 'saving');
+    const txt = document.getElementById('saveBtnText');
+    if (txt) txt.textContent = 'Өөрчлөлтийг хадгалах';
+  }
+});
+
 function closePkgLightbox() {
   const lightbox = document.getElementById('pkg-lightbox');
   lightbox.classList.remove('open');
@@ -1772,8 +1791,24 @@ async function saveChangesToServer() {
       const now = Date.now();
       lastSaved = now;
 
+      // Temporarily strip the button state so it is saved as clean, hidden by default
+      const tempBtn = document.getElementById('floatingSaveBtn');
+      let wasShow = false;
+      let wasSaving = false;
+      if (tempBtn) {
+        wasShow = tempBtn.classList.contains('show');
+        wasSaving = tempBtn.classList.contains('saving');
+        tempBtn.classList.remove('show', 'saving');
+      }
+
       // Get current HTML
       let html = '<!DOCTYPE html>\n<html lang="mn">\n' + document.documentElement.outerHTML + '\n</html>';
+
+      // Restore the button state in the active browser view
+      if (tempBtn) {
+        if (wasShow) tempBtn.classList.add('show');
+        if (wasSaving) tempBtn.classList.add('saving');
+      }
 
       // Update static variables in file code
       const productsRegex = /\/\*START_PRODUCTS\*\/[\s\S]*?\/\*END_PRODUCTS\*\//;
