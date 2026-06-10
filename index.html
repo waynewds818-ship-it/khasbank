@@ -1608,7 +1608,7 @@ document.querySelectorAll('[contenteditable="true"]').forEach((el, index) => {
 
 async function loadDataFromBlob() {
   try {
-    const res = await fetch('https://jsonblob.com/api/jsonBlob/019eb333-abe8-70e7-8c0f-9ee92cb1ae03');
+    const res = await fetch('https://api.npoint.io/0158a1c97a7e780d60c4');
     if (!res.ok) throw new Error('Blob fetch failed');
     const data = await res.json();
     
@@ -1773,8 +1773,8 @@ async function saveChangesToServer() {
       timestamp: Date.now()
     };
 
-    // 1. Save to cloud database (jsonblob.com) - works instantly for everyone globally!
-    const blobResponse = await fetch('https://jsonblob.com/api/jsonBlob/019eb333-abe8-70e7-8c0f-9ee92cb1ae03', {
+    // 1. Save to cloud database (npoint.io) - works instantly for everyone globally!
+    const blobResponse = await fetch('https://api.npoint.io/0158a1c97a7e780d60c4', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
