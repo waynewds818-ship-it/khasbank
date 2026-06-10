@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="mn">
-<head>
+<html lang="mn"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SKLAD Logistics — ХАСБАНКАНД ЗОРИУЛСАН САНАЛ</title>
@@ -789,7 +789,7 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
   <div class="hero-content">
     <div class="hero-chip"><div class="hero-chip-dot"></div><span contenteditable="true">ОНЦГОЙ АРИЛЖААНЫ САНАЛ</span></div>
     <h1 class="hero-h1" contenteditable="true">
-      ХАСБАНКАНД<br>
+      ХАС БАНКАНД<br>
       ЗОРИУЛСАН<br>
       <span class="g">БАРАА НИЙЛҮҮЛЭХ</span><br>
       САНАЛ
@@ -838,9 +838,86 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
   <div class="sec-lbl reveal"><span contenteditable="true">Санал болгож буй бараа</span></div>
   <h2 class="sec-h2 reveal" contenteditable="true">Бүтээгдэхүүний <span class="g">каталог</span></h2>
   <p class="sec-p reveal" contenteditable="true">Зураг дээр дарж дэлгэрэнгүй мэдээлэл харах боломжтой. Та өөрийн зургийг оруулан тохируулах боломжтой.</p>
-  <div class="products-grid" id="products-grid">
-    <!-- Cards will be rendered by JS -->
-  </div>
+  <div class="products-grid" id="products-grid"><div class="prod-card in" data-idx="0">
+      <div class="prod-img-wrap">
+        <div class="prod-placeholder" id="thumb-placeholder-0" style="">
+          <span class="prod-placeholder-icon">📄</span>
+          <span>Зураг оруулах</span>
+        </div>
+        <img class="prod-img" id="card-img-0" src="" alt="А4 Цаас" style="display:none">
+        <div class="prod-badge">БЭЛЭН</div>
+        <label class="upload-hint" onclick="event.stopPropagation()" for="upload-0">
+          📷 Зураг
+          <input class="upload-input" type="file" id="upload-0" accept="image/*" onchange="handleUpload(event,0)">
+        </label>
+      </div>
+      <div class="prod-body">
+        <div class="prod-name" contenteditable="true" onblur="products[0].name=this.textContent">А4 Цаас</div>
+        <div class="prod-tagline" contenteditable="true" onblur="products[0].tagline=this.textContent">Өндөр чанарын принтерт тохирсон 80г/м² цаас</div>
+        <div class="prod-footer">
+          <div class="prod-price" contenteditable="true" onblur="products[0].priceLabel=this.textContent">18,000₮ <span contenteditable="true" onblur="products[0].unitLabel=this.textContent">/ боодол</span></div>
+          <div class="prod-btn" onclick="event.stopPropagation();openModal(0)">
+            Дэлгэрэнгүй
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h6M5 2l3 3-3 3"></path></svg>
+          </div>
+        </div>
+      </div>
+      <div class="prod-delete" onclick="event.stopPropagation();deleteProduct(0)" title="Устгах">✕</div>
+    </div><div class="prod-card in" data-idx="1">
+      <div class="prod-img-wrap">
+        <div class="prod-placeholder" id="thumb-placeholder-1" style="">
+          <span class="prod-placeholder-icon">✒️</span>
+          <span>Зураг оруулах</span>
+        </div>
+        <img class="prod-img" id="card-img-1" src="" alt="Үзэг" style="display:none">
+        <div class="prod-badge">БЭЛЭН</div>
+        <label class="upload-hint" onclick="event.stopPropagation()" for="upload-1">
+          📷 Зураг
+          <input class="upload-input" type="file" id="upload-1" accept="image/*" onchange="handleUpload(event,1)">
+        </label>
+      </div>
+      <div class="prod-body">
+        <div class="prod-name" contenteditable="true" onblur="products[1].name=this.textContent">Үзэг</div>
+        <div class="prod-tagline" contenteditable="true" onblur="products[1].tagline=this.textContent">Удаан ажиллагаатай бичих хэрэгсэл, олон өнгөтэй</div>
+        <div class="prod-footer">
+          <div class="prod-price" contenteditable="true" onblur="products[1].priceLabel=this.textContent">1,200₮ <span contenteditable="true" onblur="products[1].unitLabel=this.textContent">/ ширхэг</span></div>
+          <div class="prod-btn" onclick="event.stopPropagation();openModal(1)">
+            Дэлгэрэнгүй
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h6M5 2l3 3-3 3"></path></svg>
+          </div>
+        </div>
+      </div>
+      <div class="prod-delete" onclick="event.stopPropagation();deleteProduct(1)" title="Устгах">✕</div>
+    </div><div class="prod-card in" data-idx="2">
+      <div class="prod-img-wrap">
+        <div class="prod-placeholder" id="thumb-placeholder-2" style="">
+          <span class="prod-placeholder-icon">📁</span>
+          <span>Зураг оруулах</span>
+        </div>
+        <img class="prod-img" id="card-img-2" src="" alt="Хавтас" style="display:none">
+        <div class="prod-badge">БЭЛЭН</div>
+        <label class="upload-hint" onclick="event.stopPropagation()" for="upload-2">
+          📷 Зураг
+          <input class="upload-input" type="file" id="upload-2" accept="image/*" onchange="handleUpload(event,2)">
+        </label>
+      </div>
+      <div class="prod-body">
+        <div class="prod-name" contenteditable="true" onblur="products[2].name=this.textContent">Хавтас</div>
+        <div class="prod-tagline" contenteditable="true" onblur="products[2].tagline=this.textContent">Баримт бичиг хадгалах, ангилах зориулалтын хавтас</div>
+        <div class="prod-footer">
+          <div class="prod-price" contenteditable="true" onblur="products[2].priceLabel=this.textContent">4,500₮ <span contenteditable="true" onblur="products[2].unitLabel=this.textContent">/ ширхэг</span></div>
+          <div class="prod-btn" onclick="event.stopPropagation();openModal(2)">
+            Дэлгэрэнгүй
+            <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h6M5 2l3 3-3 3"></path></svg>
+          </div>
+        </div>
+      </div>
+      <div class="prod-delete" onclick="event.stopPropagation();deleteProduct(2)" title="Устгах">✕</div>
+    </div><div class="add-card">
+    <div class="add-card-icon">+</div>
+    <div class="add-card-text">Шинэ бараа нэмэх</div>
+    <div class="add-card-sub">Каталогт нэмэх</div>
+  </div></div>
 </section>
 </div>
 
@@ -895,7 +972,7 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
       </div>
     </div>
   </div>
-  <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none" onchange="handleModalImageUpload(event)">
+  <input type="file" id="modal-file-input" accept="image/*" multiple="" style="display:none" onchange="handleModalImageUpload(event)">
 </div>
 
 <div class="divider"></div>
@@ -920,7 +997,7 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
       </div>
       <button type="button" class="pkg-cta" onclick="openPkgLightbox(event)">
         Хайрцагны загвар үзэх
-        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h8M7 3l4 4-4 4"></path></svg>
       </button>
       <div class="pkg-note" contenteditable="true">* Хамгийн бага захиалга: 50 ширхэг · Загвар гаргах хугацаа: 2-3 хоног</div>
     </div>
@@ -929,7 +1006,7 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 
 <!-- LIGHTBOX MODAL FOR CUSTOM PACKAGE -->
 <div id="pkg-lightbox" class="lightbox-overlay" onclick="closePkgLightbox()">
-  <span class="lightbox-close">&times;</span>
+  <span class="lightbox-close">×</span>
   <img id="pkg-lightbox-img" src="package.png" alt="High Quality Package Design" onclick="event.stopPropagation()">
 </div>
 
@@ -1057,10 +1134,10 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 <footer contenteditable="true">© 2026 SKLAD Logistics · Best Brickets LLC · Хасбанканд зориулсан нууц арилжааны санал</footer>
 
 <!-- FLOATING SAVE BUTTON -->
-<button id="floatingSaveBtn" class="floating-save-btn" onclick="saveChangesToServer()">
+<button id="floatingSaveBtn" class="floating-save-btn show saving" onclick="saveChangesToServer()">
   <span class="save-btn-icon">💾</span>
   <div class="save-btn-spinner"></div>
-  <span id="saveBtnText">Өөрчлөлтийг хадгалах</span>
+  <span id="saveBtnText">Хадгалж байна...</span>
 </button>
 
 <script>
@@ -1070,67 +1147,121 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 /*START_PRODUCTS*/
 let products = [
   {
-    id: 0,
-    name: 'А4 Цаас',
-    category: 'ЦААС',
-    icon: '📄',
-    tagline: 'Өндөр чанарын принтерт тохирсон 80г/м² цаас',
-    desc: 'Өндөр чанарын 80г/м² нягтралтай, принтер болон фотокопид тохирсон А4 формат цаас. Байгууллагын бичиг баримт, тайлан, гэрээ болон өдөр тутмын хэрэгцээнд тохиромжтой.',
-    price: '18,000₮',
-    priceLabel: '18,000₮',
-    unit: '/ боодол (500 хуудас)',
-    unitLabel: '/ боодол',
-    specs: [
-      ['Формат', 'A4 (210 × 297mm)'],
-      ['Нягтрал', '80 г/м²'],
-      ['Боодолд', '500 хуудас'],
-      ['Захиалгын тоо', '500 боодол'],
-      ['Нийт хуудас', '250,000 хуудас'],
-      ['Хүргэлт', '3-р долоо хоногт'],
+    "id": 0,
+    "name": "А4 Цаас",
+    "category": "ЦААС",
+    "icon": "📄",
+    "tagline": "Өндөр чанарын принтерт тохирсон 80г/м² цаас",
+    "desc": "Өндөр чанарын 80г/м² нягтралтай, принтер болон фотокопид тохирсон А4 формат цаас. Байгууллагын бичиг баримт, тайлан, гэрээ болон өдөр тутмын хэрэгцээнд тохиромжтой.",
+    "price": "18,000₮",
+    "priceLabel": "18,000₮",
+    "unit": "/ боодол (500 хуудас)",
+    "unitLabel": "/ боодол",
+    "specs": [
+      [
+        "Формат",
+        "A4 (210 × 297mm)"
+      ],
+      [
+        "Нягтрал",
+        "80 г/м²"
+      ],
+      [
+        "Боодолд",
+        "500 хуудас"
+      ],
+      [
+        "Захиалгын тоо",
+        "500 боодол"
+      ],
+      [
+        "Нийт хуудас",
+        "250,000 хуудас"
+      ],
+      [
+        "Хүргэлт",
+        "3-р долоо хоногт"
+      ]
     ],
-    images: []
+    "images": []
   },
   {
-    id: 1,
-    name: 'Үзэг',
-    category: 'БИЧГИЙН ХЭРЭГСЭЛ',
-    icon: '✒️',
-    tagline: 'Удаан ажиллагаатай бичих хэрэгсэл, олон өнгөтэй',
-    desc: 'Удаан ажиллагаатай, гэмтэлгүй, жигд бичдэг чанарын үзэг. Хар, хөх өнгөтэй. Ажлын байрны бүх хэрэгцээнд тохирсон, ашиглахад хялбар загвар.',
-    price: '1,200₮',
-    priceLabel: '1,200₮',
-    unit: '/ ширхэг',
-    unitLabel: '/ ширхэг',
-    specs: [
-      ['Өнгө', 'Хар / Хөх'],
-      ['Захиалгын тоо', '2,000 ширхэг'],
-      ['Хайрцагт', '50 ширхэг'],
-      ['Нийт хайрцаг', '40 хайрцаг'],
-      ['Баталгаа', '12 сар'],
-      ['Хүргэлт', '3-р долоо хоногт'],
+    "id": 1,
+    "name": "Үзэг",
+    "category": "БИЧГИЙН ХЭРЭГСЭЛ",
+    "icon": "✒️",
+    "tagline": "Удаан ажиллагаатай бичих хэрэгсэл, олон өнгөтэй",
+    "desc": "Удаан ажиллагаатай, гэмтэлгүй, жигд бичдэг чанарын үзэг. Хар, хөх өнгөтэй. Ажлын байрны бүх хэрэгцээнд тохирсон, ашиглахад хялбар загвар.",
+    "price": "1,200₮",
+    "priceLabel": "1,200₮",
+    "unit": "/ ширхэг",
+    "unitLabel": "/ ширхэг",
+    "specs": [
+      [
+        "Өнгө",
+        "Хар / Хөх"
+      ],
+      [
+        "Захиалгын тоо",
+        "2,000 ширхэг"
+      ],
+      [
+        "Хайрцагт",
+        "50 ширхэг"
+      ],
+      [
+        "Нийт хайрцаг",
+        "40 хайрцаг"
+      ],
+      [
+        "Баталгаа",
+        "12 сар"
+      ],
+      [
+        "Хүргэлт",
+        "3-р долоо хоногт"
+      ]
     ],
-    images: []
+    "images": []
   },
   {
-    id: 2,
-    name: 'Хавтас',
-    category: 'АРХИВЫН ХЭРЭГСЭЛ',
-    icon: '📁',
-    tagline: 'Баримт бичиг хадгалах, ангилах зориулалтын хавтас',
-    desc: 'Баримт бичиг хадгалах, ангилах зориулалтын хавтас. A4 хэмжээтэй баримтад тохирсон, бат бэх материалаар хийгдсэн. Архивт, ажлын ширээн дээр хэрэглэхэд тохиромжтой.',
-    price: '4,500₮',
-    priceLabel: '4,500₮',
-    unit: '/ ширхэг',
-    unitLabel: '/ ширхэг',
-    specs: [
-      ['Формат', 'A4 (220 × 305mm)'],
-      ['Материал', 'PP хуванцар'],
-      ['Захиалгын тоо', '500 ширхэг'],
-      ['Өнгө', 'Цэнхэр / Улаан / Ногоон'],
-      ['Багтаамж', '200 хуудас хүртэл'],
-      ['Хүргэлт', '3-р долоо хоногт'],
+    "id": 2,
+    "name": "Хавтас",
+    "category": "АРХИВЫН ХЭРЭГСЭЛ",
+    "icon": "📁",
+    "tagline": "Баримт бичиг хадгалах, ангилах зориулалтын хавтас",
+    "desc": "Баримт бичиг хадгалах, ангилах зориулалтын хавтас. A4 хэмжээтэй баримтад тохирсон, бат бэх материалаар хийгдсэн. Архивт, ажлын ширээн дээр хэрэглэхэд тохиромжтой.",
+    "price": "4,500₮",
+    "priceLabel": "4,500₮",
+    "unit": "/ ширхэг",
+    "unitLabel": "/ ширхэг",
+    "specs": [
+      [
+        "Формат",
+        "A4 (220 × 305mm)"
+      ],
+      [
+        "Материал",
+        "PP хуванцар"
+      ],
+      [
+        "Захиалгын тоо",
+        "500 ширхэг"
+      ],
+      [
+        "Өнгө",
+        "Цэнхэр / Улаан / Ногоон"
+      ],
+      [
+        "Багтаамж",
+        "200 хуудас хүртэл"
+      ],
+      [
+        "Хүргэлт",
+        "3-р долоо хоногт"
+      ]
     ],
-    images: []
+    "images": []
   }
 ];
 /*END_PRODUCTS*/
@@ -1545,5 +1676,7 @@ async function saveChangesToServer() {
   }
 }
 </script>
-</body>
+
+
+</body></html>
 </html>
