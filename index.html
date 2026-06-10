@@ -1611,58 +1611,27 @@ async function loadLatestData() {
       localStorage.removeItem('khasbank_draft_html');
       localStorage.removeItem('khasbank_draft_products');
       localStorage.removeItem('khasbank_draft_nextid');
+      localStorage.removeItem('khasbank_draft_edits');
       localStorage.removeItem('khasbank_draft_time');
     }
   } else if (maxTime === draftTime) {
     console.log("Loading latest state from LocalStorage (timestamp:", draftTime, ")");
-    const draftHtml = localStorage.getItem('khasbank_draft_html');
-    if (draftHtml) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(draftHtml, 'text/html');
-      if (doc && doc.body) {
-        document.body.innerHTML = doc.body.innerHTML;
-        // Make sure the floating save button is not stuck in a saving state
-        const tempBtn = document.getElementById('floatingSaveBtn');
-        if (tempBtn) {
-          tempBtn.classList.remove('show', 'saving');
-          const txt = document.getElementById('saveBtnText');
-          if (txt) txt.textContent = 'Өөрчлөлтийг хадгалах';
-        }
-        
-        // Re-observe elements for animations since DOM was replaced
-        setTimeout(() => {
-          const animIo = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (!entry.isIntersecting) return;
-              const el = entry.target;
-              const parent = el.parentElement;
-              const group = [...parent.children].filter(c => c.classList.contains(el.classList[0]));
-              const idx = group.indexOf(el);
-              el.style.transitionDelay = (idx * 0.09) + 's';
-              el.classList.add('in');
-              animIo.unobserve(el);
-            });
-          }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
-          
-          document.querySelectorAll(
-            '.reveal,.adv-row,.stat-box,.pricing-table,.total-card,.tl-step,.res-card'
-          ).forEach(el => animIo.observe(el));
-          
-          const spineIo = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
-              if (e.isIntersecting) { document.getElementById('tlFill').classList.add('in'); }
-            });
-          }, { threshold: 0.3 });
-          const spine = document.getElementById('tlFill');
-          if (spine) spineIo.observe(spine.parentElement);
-        }, 100);
-      }
-    }
     try {
       const draftProducts = localStorage.getItem('khasbank_draft_products');
       const draftNextId = localStorage.getItem('khasbank_draft_nextid');
+      const draftEditsStr = localStorage.getItem('khasbank_draft_edits');
       if (draftProducts) products = JSON.parse(draftProducts);
       if (draftNextId) nextId = parseInt(draftNextId);
+      if (draftEditsStr) {
+        loadedEdits = JSON.parse(draftEditsStr);
+        for (const [id, html] of Object.entries(loadedEdits)) {
+          const el = document.getElementById(id);
+          if (el) {
+            el.innerHTML = html;
+            el._originalHTML = html; // update baseline
+          }
+        }
+      }
     } catch(e) {
       console.error("Error loading variables from draft", e);
     }
@@ -1830,6 +1799,7 @@ async function saveChangesToServer() {
   try {
     localStorage.setItem('khasbank_draft_products', JSON.stringify(products));
     localStorage.setItem('khasbank_draft_nextid', nextId);
+    localStorage.setItem('khasbank_draft_edits', JSON.stringify(edits));
     localStorage.setItem('khasbank_draft_time', now.toString());
   } catch (lsErr) {
     console.warn("Could not save products to localStorage", lsErr);
@@ -1923,7 +1893,6 @@ async function saveChangesToServer() {
   } else {
     alert('Хадгалахад алдаа гарлаа. Таны сүлжээ эсвэл сервер холболтыг шалгана уу.\nДэлгэрэнгүй: ' + (cloudErrorMsg || 'Сүлжээний алдаа'));
   }
-}
 }
 </script>
 
