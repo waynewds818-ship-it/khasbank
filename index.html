@@ -1599,16 +1599,19 @@ function handleModalImageUpload(e) {
 // ═══════════════════════════════
 renderProductCards();
 
-// Programmatically assign unique IDs to all contenteditable elements
+// Programmatically assign unique IDs and baseline values to all contenteditable elements
 document.querySelectorAll('[contenteditable="true"]').forEach((el, index) => {
   if (!el.id) {
     el.id = 'auto-edit-' + index;
   }
+  el._originalHTML = el.innerHTML;
 });
+
+let loadedEdits = {};
 
 async function loadDataFromBlob() {
   try {
-    const res = await fetch('https://api.npoint.io/0158a1c97a7e780d60c4');
+    const res = await fetch('https://api.npoint.io/0411a14c627ae6c90ba2');
     if (!res.ok) throw new Error('Blob fetch failed');
     const data = await res.json();
     
@@ -1620,9 +1623,13 @@ async function loadDataFromBlob() {
         nextId = data.nextId;
       }
       if (data.edits) {
+        loadedEdits = data.edits;
         for (const [id, html] of Object.entries(data.edits)) {
           const el = document.getElementById(id);
-          if (el) el.innerHTML = html;
+          if (el) {
+            el.innerHTML = html;
+            el._originalHTML = html; // Set baseline to the loaded database state
+          }
         }
       }
       // Re-render products to display updated data
@@ -1757,13 +1764,12 @@ async function saveChangesToServer() {
 
     await new Promise(resolve => setTimeout(resolve, 200));
 
-    // Ensure all editable elements have IDs and record their text contents
-    const edits = {};
-    document.querySelectorAll('[contenteditable="true"]').forEach((el, index) => {
-      if (!el.id) {
-        el.id = 'auto-edit-' + index;
+    // Build optimized edits dictionary by merging loaded edits and current changes
+    const edits = { ...loadedEdits };
+    document.querySelectorAll('[contenteditable="true"]').forEach((el) => {
+      if (el.innerHTML !== el._originalHTML) {
+        edits[el.id] = el.innerHTML;
       }
-      edits[el.id] = el.innerHTML;
     });
 
     const payload = {
@@ -1774,7 +1780,7 @@ async function saveChangesToServer() {
     };
 
     // 1. Save to cloud database (npoint.io) - works instantly for everyone globally!
-    const blobResponse = await fetch('https://api.npoint.io/0158a1c97a7e780d60c4', {
+    const blobResponse = await fetch('https://api.npoint.io/0411a14c627ae6c90ba2', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
