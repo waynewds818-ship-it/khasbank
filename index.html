@@ -1611,7 +1611,7 @@ let loadedEdits = {};
 
 async function loadDataFromBlob() {
   try {
-    const res = await fetch('https://api.npoint.io/0411a14c627ae6c90ba2');
+    const res = await fetch('https://api.npoint.io/d68310e7c00cc566722a');
     if (!res.ok) throw new Error('Blob fetch failed');
     const data = await res.json();
     
@@ -1780,8 +1780,8 @@ async function saveChangesToServer() {
     };
 
     // 1. Save to cloud database (npoint.io) - works instantly for everyone globally!
-    const blobResponse = await fetch('https://api.npoint.io/0411a14c627ae6c90ba2', {
-      method: 'PUT',
+    const blobResponse = await fetch('https://api.npoint.io/d68310e7c00cc566722a', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
