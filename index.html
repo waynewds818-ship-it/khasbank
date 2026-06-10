@@ -1135,7 +1135,7 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 <div class="pkg-section">
   <div class="pkg-grid">
     <div class="pkg-img-side">
-      <img src="package.png" alt="Хасбанк Custom Package">
+      <img src="package-vip.png" alt="Хасбанк Custom Package">
       <div class="pkg-img-overlay"></div>
       <div class="pkg-img-badge">PREMIUM</div>
     </div>
@@ -1161,7 +1161,7 @@ footer{text-align:center;padding:28px;font-size:11px;color:var(--gray3);letter-s
 <!-- LIGHTBOX MODAL FOR CUSTOM PACKAGE -->
 <div id="pkg-lightbox" class="lightbox-overlay" onclick="closePkgLightbox()" style="display: none;">
   <span class="lightbox-close">×</span>
-  <img id="pkg-lightbox-img" src="package.png" alt="High Quality Package Design" onclick="event.stopPropagation()">
+  <img id="pkg-lightbox-img" src="package-vip.png" alt="High Quality Package Design" onclick="event.stopPropagation()">
 </div>
 
 <div class="divider"></div>
@@ -1896,14 +1896,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function openPkgLightbox(event) {
+  if (event) event.stopPropagation();
+  const lightbox = document.getElementById('pkg-lightbox');
+  if (lightbox) {
+    lightbox.style.display = 'flex';
+    // Force reflow to ensure smooth transition plays
+    lightbox.offsetHeight;
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
 function closePkgLightbox() {
   const lightbox = document.getElementById('pkg-lightbox');
-  lightbox.classList.remove('open');
-  setTimeout(() => {
-    lightbox.style.display = 'none';
-  }, 300);
-  if (!document.getElementById('modal').classList.contains('open')) {
-    document.body.style.overflow = '';
+  if (lightbox) {
+    lightbox.classList.remove('open');
+    setTimeout(() => {
+      lightbox.style.display = 'none';
+    }, 300);
+    if (!document.getElementById('modal').classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
   }
 }
 
